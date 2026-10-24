@@ -455,7 +455,11 @@ Resources:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
               StringLike:
-                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}"
+                # The workflow deploys through the "production" GitHub environment;
+                # the branch form is also accepted for workflows without an environment.
+                token.actions.githubusercontent.com:sub:
+                  - !Sub "repo:${GitHubRepository}:environment:production"
+                  - !Sub "repo:${GitHubRepository}:ref:refs/heads/${GitHubBranch}"
       Policies:
         - PolicyName: deploy-site
           PolicyDocument:

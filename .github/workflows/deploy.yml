@@ -1,12 +1,17 @@
-# Deploys the static website to S3 + CloudFront on every push to main.
-# Uses GitHub OIDC to assume an AWS role, so no long-lived AWS keys are stored.
+# Deploys the website to S3 + CloudFront after every merge (push) to main.
+# Pull requests get the same checks without deploying, so problems show up
+# before merging.
 #
-# One-time setup (see README → "Optional: deploy from GitHub Actions"):
+# Uses GitHub OIDC to assume an AWS role: no AWS access keys are stored in GitHub.
+#
+# One-time setup: see DEPLOY.md. In short, after deploying infra/hosting.yaml with
+# GitHubRepository set, add these under
 #   Repository → Settings → Secrets and variables → Actions → Variables:
-#     AWS_DEPLOY_ROLE_ARN         GitHubDeployRoleArn output of infra/hosting.yaml
+#     AWS_DEPLOY_ROLE_ARN         GitHubDeployRoleArn output of the hosting stack
 #     S3_BUCKET                   BucketName output
 #     CLOUDFRONT_DISTRIBUTION_ID  DistributionId output
-#     AWS_REGION                  (optional) region of the bucket, default us-east-1
+#     AWS_REGION                  (optional) region of the hosting stack, default us-east-1
+# Until they exist, the deploy job is skipped with a notice instead of failing.
 name: Deploy website
 
 on:
@@ -15,32 +20,111 @@ on:
     paths-ignore:
       - "backend/**"
       - "infra/**"
-      - "README.md"
-      - "email-signature/**"
       - "brand/**"
+      - "email-signature/**"
+      - "**/*.md"
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  id-token: write   # required for OIDC
   contents: read
 
+# Never run two deploys at once; a newer merge waits for the current deploy.
 concurrency:
-  group: deploy-website
+  group: deploy-website-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  # -------------------------------------------------------------------------
+  # Checks (pull requests and merges)
+  # -------------------------------------------------------------------------
+  check:
+    name: Check site
     runs-on: ubuntu-latest
-    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
 
+      - name: Build the upload folder (dry run)
+        run: DRY_RUN=1 ./scripts/deploy-site.sh
+
+      - name: Check internal links
+        run: |
+          # Every href="/..." / src="/..." in the pages must point to a real file.
+          status=0
+          for ref in $(grep -ohE '(href|src)="/[^"#?]*' *.html | sed -E 's/^(href|src)="//' | sort -u); do
+            path="${ref#/}"
+            [[ -z "$path" ]] && continue
+            if [[ ! -e "$path" && ! -e "${path%/}.html" ]]; then
+              echo "::error::Broken link: $ref"; status=1
+            fi
+          done
+          exit $status
+
+  # -------------------------------------------------------------------------
+  # Deploy (merges to main and manual runs only)
+  # -------------------------------------------------------------------------
+  deploy:
+    name: Deploy to AWS
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+    environment:
+      name: production
+      url: https://www.intelyx.co.in
+    steps:
+      - name: Check AWS settings
+        id: cfg
+        env:
+          ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          BUCKET: ${{ vars.S3_BUCKET }}
+          DIST: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          if [[ -z "$ROLE" || -z "$BUCKET" || -z "$DIST" ]]; then
+            echo "::notice title=Deploy skipped::Set AWS_DEPLOY_ROLE_ARN, S3_BUCKET and CLOUDFRONT_DISTRIBUTION_ID in Settings → Secrets and variables → Actions → Variables (see DEPLOY.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out
+        if: steps.cfg.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
       - name: Configure AWS credentials (OIDC)
+        if: steps.cfg.outputs.ready == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: intelyx-website-${{ github.run_id }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
-      - name: Deploy to S3 and invalidate CloudFront
+      - name: Upload to S3 and invalidate CloudFront
+        if: steps.cfg.outputs.ready == 'true'
         run: ./scripts/deploy-site.sh "${{ vars.S3_BUCKET }}" "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}"
+
+      - name: Smoke test
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          # CloudFront needs a moment to pick up the invalidation; retry briefly.
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://www.intelyx.co.in/ || true)
+            [[ "$code" == "200" ]] && { echo "✓ https://www.intelyx.co.in/ returned 200"; break; }
+            echo "Attempt $i: got $code, retrying in 10s"; sleep 10
+          done
+          if [[ "$code" != "200" ]]; then
+            echo "::warning::https://www.intelyx.co.in/ returned $code. If DNS isn't pointed at CloudFront yet, this is expected."
+          fi
+
+      - name: Summary
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          {
+            echo "### Website deployed"
+            echo "- Commit: \`${GITHUB_SHA::10}\`"
+            echo "- Site: https://www.intelyx.co.in"
+          } >> "$GITHUB_STEP_SUMMARY"
