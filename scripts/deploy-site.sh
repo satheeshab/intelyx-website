@@ -20,7 +20,7 @@ cd "$(dirname "$0")/.."
 # Never upload these
 EXCLUDES=(
   --exclude ".git/*" --exclude ".github/*" --exclude "backend/*" --exclude "infra/*"
-  --exclude "scripts/*" --exclude "email-signature/*" --exclude "node_modules/*"
+  --exclude "scripts/*" --exclude "email-signature/*" --exclude "brand/*" --exclude "node_modules/*"
   --exclude "README.md" --exclude ".gitignore" --exclude "*.DS_Store" --exclude ".aws-sam/*"
 )
 
