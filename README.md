@@ -6,6 +6,11 @@ that emails website enquiries to `office@intelyx.co.in`.
 - **Frontend:** plain HTML5, CSS3 and vanilla JavaScript. No framework, no build step.
 - **Hosting:** private Amazon S3 bucket behind Amazon CloudFront (HTTPS, HTTP/2 + HTTP/3).
 - **Enquiry form:** Browser → API Gateway (HTTP API) → AWS Lambda (Node.js) → Amazon SES → `office@intelyx.co.in`.
+- **Deploys:** every merge to `main` publishes the site via GitHub Actions.
+
+> **Setting up AWS for the first time?** Follow **[DEPLOY.md](DEPLOY.md)**, a step-by-step
+> guide for this project's setup (GoDaddy DNS and email, shared AWS account, automatic deploys).
+> The sections below are the full reference.
 
 ```
                        ┌────────────────────────────── us-east-1 (global) ─────────────────────────────┐
@@ -37,7 +42,7 @@ that emails website enquiries to `office@intelyx.co.in`.
 6. [Deploy the enquiry backend](#6-deploy-the-enquiry-backend-sam)
 7. [Hosting: S3 + CloudFront, custom domain and SSL](#7-hosting-s3--cloudfront-custom-domain-and-ssl)
 8. [Deploy the website and invalidate the cache](#8-deploy-the-website-and-invalidate-the-cache)
-9. [Optional: deploy from GitHub Actions (OIDC)](#9-optional-deploy-from-github-actions-oidc)
+9. [Automatic deploys from GitHub Actions (OIDC)](#9-automatic-deploys-from-github-actions-oidc)
 10. [Email signature](#10-email-signature)
 11. [Testing checklist](#11-testing-checklist)
 12. [Troubleshooting](#12-troubleshooting)
@@ -129,9 +134,10 @@ usage rules. On the website, the mark is inline SVG in the header and footer (`.
 so its colours can follow the light/dark theme via `--logo-tile`, `--logo-glyph` and
 `--logo-dot`; it also appears in `favicon.svg` and `assets/img/logo.svg`.
 
-**Cache busting (important).** CSS and JS are cached for a year and referenced as
-`style.css?v=1.0.0`. **After changing any CSS or JS file, bump the version** in every page
-(search and replace `?v=1.0.0` → `?v=1.0.1`), or visitors may keep the old file.
+**Cache busting.** CSS and JS are cached for a year and referenced as `style.css?v=1.0.0`.
+`scripts/deploy-site.sh` (used by the automatic deploy) replaces every `?v=...` with the
+current commit ID when it uploads, so visitors always get fresh files and you never need to
+bump the version by hand. Only if you upload files some other way, bump `?v=` yourself.
 
 **Sitemap.** When you add a page, add it to `sitemap.xml` and give it its own `<title>`,
 meta description, canonical URL and Open Graph tags (copy the `<head>` of an existing page).
@@ -381,11 +387,14 @@ aws cloudformation describe-stacks --region us-east-1 --stack-name intelyx-websi
 
 ## 8. Deploy the website and invalidate the cache
 
-**Recommended:** use the script, which uploads only website files and sets cache headers
-(1 year for versioned CSS/JS, 30 days for images, 5 minutes for HTML):
+Normally this happens automatically after every merge to `main` (section 9). To deploy by
+hand, use the same script. It copies only website files (an allow-list) into a temporary
+folder, stamps CSS/JS links with the commit ID, uploads with cache headers (1 year for CSS/JS,
+30 days for images, 5 minutes for HTML) and invalidates CloudFront:
 
 ```bash
 ./scripts/deploy-site.sh <BucketName> <DistributionId>
+DRY_RUN=1 ./scripts/deploy-site.sh     # list what would be uploaded, no AWS calls
 ```
 
 **Manual equivalent:**
@@ -402,10 +411,14 @@ aws cloudfront create-invalidation --distribution-id <DistributionId> --paths "/
 Invalidations take a minute or two. The first 1,000 invalidation paths each month are free,
 and `/*` counts as one path.
 
-## 9. Optional: deploy from GitHub Actions (OIDC)
+## 9. Automatic deploys from GitHub Actions (OIDC)
 
-`.github/workflows/deploy.yml` deploys the site on every push to `main` with short-lived AWS
-credentials (no access keys stored in GitHub).
+`.github/workflows/deploy.yml` deploys the site after every merge (push) to `main`, with
+short-lived AWS credentials (no access keys stored in GitHub). Pull requests run the same
+checks (all website files present, no broken internal links) without deploying. Changes that
+only touch `backend/`, `infra/`, `brand/`, `email-signature/` or Markdown files don't deploy.
+Deploys run through a GitHub environment named `production`, which shows a deployment history
+and can require an approval. Step-by-step setup: [DEPLOY.md](DEPLOY.md), step 5.
 
 1. Redeploy the hosting stack with your repository:
    ```bash
@@ -419,10 +432,11 @@ credentials (no access keys stored in GitHub).
    - `AWS_DEPLOY_ROLE_ARN`: the `GitHubDeployRoleArn` output
    - `S3_BUCKET`: the `BucketName` output
    - `CLOUDFRONT_DISTRIBUTION_ID`: the `DistributionId` output
-3. Push to `main`, or run the workflow by hand from the **Actions** tab.
+3. In **Settings → Environments → production**, limit deployment branches to `main`.
+4. Merge to `main`, or run the workflow by hand from the **Actions** tab.
 
-The role can only write to this bucket and invalidate this distribution. The workflow is
-skipped until `AWS_DEPLOY_ROLE_ARN` is set.
+The role can only write to this bucket and invalidate this distribution. Until the three
+variables are set, the deploy job is skipped with a notice instead of failing.
 
 ## 10. Email signature
 
