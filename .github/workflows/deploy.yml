@@ -17,6 +17,7 @@ on:
       - "infra/**"
       - "README.md"
       - "email-signature/**"
+      - "brand/**"
   workflow_dispatch:
 
 permissions:

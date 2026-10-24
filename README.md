@@ -71,6 +71,7 @@ that emails website enquiries to `office@intelyx.co.in`.
 /scripts/deploy-site.sh  Uploads the site to S3 with the right cache headers, then invalidates CloudFront
 /.github/workflows/deploy.yml  Optional automatic deploy on push to main (GitHub OIDC)
 /email-signature/        signature.html and signature.txt
+/brand/                  Logo files (SVG + PNG, light/dark/one-colour versions) and usage guide
 ```
 
 Icons are inline SVG inside the HTML. There are no external images, scripts or stock photos;
@@ -122,9 +123,11 @@ the manual toggle); change both. Keep text at a contrast ratio of at least 4.5:1
 each page's `<head>` (the `data-fonts` link and its `<noscript>` copy); the font names are the
 `--font-heading` and `--font-body` variables.
 
-**Logo.** The mark is inline SVG in the header and footer (`.brand-mark`), and also in
-`favicon.svg` and `assets/img/logo.svg`. Its colours follow the theme via `--logo-tile`,
-`--logo-glyph` and `--logo-dot`.
+**Logo.** Standalone logo files (full logo, dark-background, one-colour and icon-only
+versions, as SVG and transparent PNG) are in [`/brand`](brand/README.md), with colours and
+usage rules. On the website, the mark is inline SVG in the header and footer (`.brand-mark`)
+so its colours can follow the light/dark theme via `--logo-tile`, `--logo-glyph` and
+`--logo-dot`; it also appears in `favicon.svg` and `assets/img/logo.svg`.
 
 **Cache busting (important).** CSS and JS are cached for a year and referenced as
 `style.css?v=1.0.0`. **After changing any CSS or JS file, bump the version** in every page
@@ -390,7 +393,8 @@ aws cloudformation describe-stacks --region us-east-1 --stack-name intelyx-websi
 ```bash
 aws s3 sync ./ s3://<BucketName> --delete \
   --exclude ".git/*" --exclude ".github/*" --exclude "backend/*" --exclude "infra/*" \
-  --exclude "scripts/*" --exclude "email-signature/*" --exclude "README.md" --exclude ".gitignore"
+  --exclude "scripts/*" --exclude "email-signature/*" --exclude "brand/*" \
+  --exclude "README.md" --exclude ".gitignore"
 
 aws cloudfront create-invalidation --distribution-id <DistributionId> --paths "/*"
 ```
