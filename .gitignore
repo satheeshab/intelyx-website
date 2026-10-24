@@ -22,3 +22,14 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Node / SAM
+node_modules/
+.aws-sam/
+samconfig.local.toml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
