@@ -1,0 +1,45 @@
+# Deploys the static website to S3 + CloudFront on every push to main.
+# Uses GitHub OIDC to assume an AWS role, so no long-lived AWS keys are stored.
+#
+# One-time setup (see README → "Optional: deploy from GitHub Actions"):
+#   Repository → Settings → Secrets and variables → Actions → Variables:
+#     AWS_DEPLOY_ROLE_ARN         GitHubDeployRoleArn output of infra/hosting.yaml
+#     S3_BUCKET                   BucketName output
+#     CLOUDFRONT_DISTRIBUTION_ID  DistributionId output
+#     AWS_REGION                  (optional) region of the bucket, default us-east-1
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "backend/**"
+      - "infra/**"
+      - "README.md"
+      - "email-signature/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+concurrency:
+  group: deploy-website
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Deploy to S3 and invalidate CloudFront
+        run: ./scripts/deploy-site.sh "${{ vars.S3_BUCKET }}" "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}"

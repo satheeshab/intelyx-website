@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" role="img" aria-labelledby="t">
+  <title id="t">Intelyx</title>
+  <g transform="translate(2 4)">
+    <rect width="32" height="32" rx="9" fill="#0b1530"/>
+    <circle cx="11" cy="9.25" r="2.75" fill="#2dd4bf"/>
+    <rect x="8.25" y="13.5" width="5.5" height="11" rx="2.75" fill="#ffffff"/>
+    <path d="M18.75 21.75 23.25 10.25" fill="none" stroke="#2dd4bf" stroke-width="5.5" stroke-linecap="round"/>
+  </g>
+  <text x="44" y="29" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-size="25" font-weight="800" letter-spacing="-0.9" fill="#0b1530">Intely<tspan fill="#0f766e">x</tspan></text>
+</svg>
