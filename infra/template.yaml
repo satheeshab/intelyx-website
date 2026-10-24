@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Intelyx website enquiry API. Browser -> API Gateway (HTTP API, POST /enquiry)
-  -> Lambda (Node.js 20) -> Amazon SES -> office@intelyx.co.in.
+  -> Lambda (Node.js 24) -> Amazon SES -> office@intelyx.co.in.
   Deploy in ap-south-1 (Mumbai):  sam build && sam deploy --guided
 
 # ---------------------------------------------------------------------------
@@ -46,12 +46,12 @@ Parameters:
 
   NodeRuntime:
     Type: String
-    Default: nodejs20.x
+    Default: nodejs24.x
     AllowedValues: [nodejs20.x, nodejs22.x, nodejs24.x]
     Description: >
-      Lambda runtime. Note: AWS deprecated nodejs20.x on 2026-04-30 (no more security
-      patches; new functions blocked from 2027-02-01). The code also runs unchanged on
-      nodejs22.x and nodejs24.x, so moving to nodejs24.x is recommended.
+      Lambda runtime. nodejs24.x is the default; the code also runs unchanged on
+      nodejs22.x. Avoid nodejs20.x: AWS deprecated it on 2026-04-30 (no more security
+      patches; new functions blocked from 2027-02-01).
 
   LogRetentionDays:
     Type: Number

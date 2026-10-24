@@ -1,5 +1,5 @@
 /**
- * Intelyx — enquiry email Lambda (Node.js 20, AWS SDK v3)
+ * Intelyx — enquiry email Lambda (Node.js 24, AWS SDK v3)
  * --------------------------------------------------------------------------
  * Browser → API Gateway (HTTP API, POST /enquiry) → this function → Amazon SES
  *

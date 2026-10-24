@@ -229,7 +229,7 @@ AWS usually replies within 24 hours.
 
 Prerequisites: [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html),
 [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
-and Node.js 20 or later.
+and Node.js 22 or later (to run the tests locally).
 
 ```bash
 cd infra
@@ -247,12 +247,12 @@ or change them. Parameters:
 | `SesDomain` | `intelyx.co.in` | (IAM scope) |
 | `AllowedOrigins` | `https://www.intelyx.co.in,https://intelyx.co.in,http://localhost:8080,...` | `ALLOWED_ORIGINS` |
 | `SendAck` | `false` | `SEND_ACK` |
-| `NodeRuntime` | `nodejs20.x` | (runtime) |
+| `NodeRuntime` | `nodejs24.x` | (runtime) |
 
-> **Node.js runtime note.** AWS deprecated `nodejs20.x` on 30 April 2026, so it no longer
-> receives security patches, and new functions on it can't be created after 1 February 2027.
-> The code runs unchanged on `nodejs22.x` and `nodejs24.x`; choose `nodejs24.x` when deploying
-> (`--parameter-overrides NodeRuntime=nodejs24.x`) unless you specifically need Node 20.
+> **Node.js runtime note.** The function runs on `nodejs24.x` by default; `nodejs22.x` also
+> works unchanged. `nodejs20.x` is still selectable but not recommended: AWS deprecated it on
+> 30 April 2026, so it no longer receives security patches, and new functions on it can't be
+> created after 1 February 2027.
 
 What the stack creates:
 
