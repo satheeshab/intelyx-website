@@ -6,7 +6,7 @@
 #   DRY_RUN=1 ./scripts/deploy-site.sh       # build the upload folder only (no AWS calls)
 #
 # What it does
-#   1. Copies ONLY website files into a temporary folder (allow-list below), so
+#   1. Copies ONLY website files into a temporary folder (scripts/package-site.sh), so
 #      backend code, infrastructure, docs and brand files can never be uploaded.
 #   2. Stamps every ?v=... in the HTML with the current git commit, so browsers
 #      always fetch fresh CSS/JS after a deploy (no manual version bumps).
@@ -28,31 +28,10 @@ fi
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-# ----- 1. Stage the website files (allow-list) ------------------------------
+# ----- 1+2. Stage the website files and stamp versions -----------------------
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
-
-cp ./*.html "$STAGE"/
-cp favicon.svg robots.txt sitemap.xml "$STAGE"/
-mkdir -p "$STAGE/assets"
-cp -R assets/css assets/js assets/img "$STAGE/assets/"
-find "$STAGE" -name ".DS_Store" -delete
-
-# Basic sanity checks before anything is uploaded
-for page in index.html 404.html contact.html; do
-  [[ -f "$STAGE/$page" ]] || { echo "✗ Missing $page"; exit 1; }
-done
-if grep -q "REPLACE_WITH" "$STAGE/assets/js/config.js"; then
-  echo "! Note: assets/js/config.js still has the placeholder API URL."
-  echo "  The enquiry form will show the 'email us directly' fallback until it is set."
-fi
-
-# ----- 2. Cache-busting version stamp ---------------------------------------
-VERSION="$(git rev-parse --short=10 HEAD 2>/dev/null || date +%Y%m%d%H%M%S)"
-for f in "$STAGE"/*.html; do
-  sed -i.bak -E "s/\?v=[A-Za-z0-9._-]+/?v=${VERSION}/g" "$f" && rm -f "$f.bak"
-done
-echo "→ Version stamp: ?v=${VERSION}"
+./scripts/package-site.sh "$STAGE"
 
 if [[ "$DRY_RUN" == "1" ]]; then
   echo "→ DRY RUN: files that would be uploaded:"
@@ -92,4 +71,4 @@ echo "→ CloudFront invalidation"
 aws cloudfront create-invalidation --distribution-id "${DISTRIBUTION_ID}" --paths "/*" \
   --query 'Invalidation.{Id:Id,Status:Status}' --output table
 
-echo "✓ Deployed version ${VERSION} to s3://${BUCKET}"
+echo "✓ Deployed commit $(git rev-parse --short=10 HEAD 2>/dev/null || echo unknown) to s3://${BUCKET}"

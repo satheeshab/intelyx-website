@@ -73,6 +73,7 @@ that emails website enquiries to `office@intelyx.co.in`.
 /infra/template.yaml     AWS SAM template for the enquiry API (deploy in ap-south-1)
 /infra/samconfig.toml    Defaults for `sam deploy`
 /infra/hosting.yaml      CloudFormation for S3 + CloudFront + ACM + Route 53 (deploy in us-east-1)
+/scripts/package-site.sh Builds s3-upload/: only the website files, ready to copy into S3 by hand
 /scripts/deploy-site.sh  Uploads the site to S3 with the right cache headers, then invalidates CloudFront
 /.github/workflows/deploy.yml  Optional automatic deploy on push to main (GitHub OIDC)
 /email-signature/        signature.html and signature.txt
@@ -387,8 +388,15 @@ aws cloudformation describe-stacks --region us-east-1 --stack-name intelyx-websi
 
 ## 8. Deploy the website and invalidate the cache
 
-Normally this happens automatically after every merge to `main` (section 9). To deploy by
-hand, use the same script. It copies only website files (an allow-list) into a temporary
+**Upload by hand (no AWS CLI or GitHub Actions):** run `./scripts/package-site.sh`. It creates
+a folder `s3-upload/` containing only the 20 website files, with CSS/JS versions stamped.
+Select everything *inside* that folder and drag it into your S3 bucket in the AWS console, so
+`index.html` sits at the bucket's top level. After changing files later, upload them again
+(and create a CloudFront invalidation for `/*` if you use CloudFront). `s3-upload/` is
+generated, so it is not committed to git.
+
+Normally deployment happens automatically after every merge to `main` (section 9). To deploy
+with the AWS CLI instead, use the deploy script. It copies only website files (an allow-list) into a temporary
 folder, stamps CSS/JS links with the commit ID, uploads with cache headers (1 year for CSS/JS,
 30 days for images, 5 minutes for HTML) and invalidates CloudFront:
 
