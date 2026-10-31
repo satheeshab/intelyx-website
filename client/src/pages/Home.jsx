@@ -89,7 +89,6 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="container hero-grid">
           <div className="hero-copy">
-            <p className="hero-badge"><strong>Made in Bengaluru</strong> Business software built for India</p>
             <h1 id="hero-title">
               Intelligent software for the way you <span className="text-gradient">run your business.</span>
             </h1>
