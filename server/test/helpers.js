@@ -32,10 +32,15 @@ export function makeFakeDist() {
   fs.writeFileSync(path.join(dist, 'public', 'robots.txt'), 'User-agent: *');
   fs.writeFileSync(path.join(dist, 'pages', 'home.html'), '<html><title>Home page</title></html>');
   fs.writeFileSync(path.join(dist, 'pages', 'about.html'), '<html><title>About page</title></html>');
+  fs.writeFileSync(path.join(dist, 'pages', 'products--schools-erp.html'), '<html><title>Schools ERP page</title></html>');
   fs.writeFileSync(path.join(dist, 'pages', '404.html'), '<html><title>Not found page</title></html>');
   fs.writeFileSync(
     path.join(dist, 'pages', 'routes.json'),
-    JSON.stringify([{ path: '/', file: 'home.html' }, { path: '/about', file: 'about.html' }]),
+    JSON.stringify([
+      { path: '/', file: 'home.html' },
+      { path: '/about', file: 'about.html' },
+      { path: '/products/schools-erp', file: 'products--schools-erp.html' },
+    ]),
   );
   return dist;
 }

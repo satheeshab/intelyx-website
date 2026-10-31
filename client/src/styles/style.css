@@ -1310,6 +1310,7 @@ a:hover { color: var(--color-accent-hover); }
 .product-title .eyebrow { margin-bottom: 4px; }
 
 .product-overview { color: var(--color-muted); font-size: var(--fs-md); margin: 0; }
+.product-more { margin-top: 18px; }
 
 .who-for {
   padding: 24px;
@@ -1348,8 +1349,67 @@ a:hover { color: var(--color-accent-hover); }
 .feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
 .feature .dropdown-icon { width: 40px; height: 40px; }
+.feature h3,
 .feature h4 { margin: 2px 0 4px; font-size: 1.1875rem; letter-spacing: -0.005em; }
 .feature p { margin: 0; color: var(--color-muted); font-size: var(--fs-sm); line-height: 1.55; }
+
+/* Product pages (/products/<id>) */
+.product-hero-actions { margin-top: 28px; }
+
+.product-who {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 680px;
+  margin: 24px 0 0;
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+}
+
+.product-who .icon { flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; color: var(--color-accent-strong); }
+.product-who strong { color: var(--color-heading); }
+
+.product-screens { display: grid; gap: clamp(2.5rem, 2rem + 2vw, 4rem); }
+
+.product-screen { display: grid; gap: 20px; align-items: center; margin: 0; }
+.product-screen-frame { min-width: 0; }
+
+.product-screen-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.product-screen .mockup-body { min-height: 0; }
+.product-screen figcaption h3 { margin-bottom: 8px; }
+.product-screen figcaption p { margin: 0; color: var(--color-muted); font-size: var(--fs-md); }
+
+@media (min-width: 900px) {
+  .product-screen { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: clamp(2rem, 1rem + 3vw, 4rem); }
+  .product-screens > :nth-child(even) .product-screen { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+  .product-screens > :nth-child(even) .product-screen-frame { order: 2; }
+}
+
+.screens-note { margin: 2.5rem 0 0; color: var(--color-muted); font-size: var(--fs-sm); text-align: center; }
+
+.kpi em.kpi-note { color: var(--color-muted); font-weight: 500; }
+.mockup-row em.tone-warn { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+.mockup-row em.tone-info { background: var(--color-bg-alt); color: var(--color-muted); }
+
+.steps .card { position: relative; }
+
+.step-number {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  color: var(--color-border-strong);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
 
 /* --------------------------------------------------------------------------
    10. About page

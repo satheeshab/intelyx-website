@@ -60,10 +60,31 @@ fs.mkdirSync(pagesDir, { recursive: true });
 
 const routes = [];
 for (const [route, page] of Object.entries(PAGES)) {
-  const file = route === '/' ? 'home.html' : `${route.slice(1)}.html`;
+  // /products/schools-erp -> products--schools-erp.html (one flat folder)
+  const file = route === '/' ? 'home.html' : `${route.slice(1).replace(/\//g, '--')}.html`;
   fs.writeFileSync(path.join(pagesDir, file), render(page, `${SITE_URL}${route}`));
   routes.push({ path: route, file });
 }
 fs.writeFileSync(path.join(pagesDir, '404.html'), render(NOT_FOUND, null));
 fs.writeFileSync(path.join(pagesDir, 'routes.json'), JSON.stringify(routes, null, 2));
 console.log(`Pre-rendered ${routes.length} pages + 404 into ${path.relative(process.cwd(), pagesDir) || pagesDir}`);
+
+// sitemap.xml lists every page above, so new pages are never left out.
+const SITEMAP = {
+  '/': ['monthly', '1.0'],
+  '/products': ['monthly', '0.9'],
+  '/contact': ['yearly', '0.8'],
+  '/about': ['yearly', '0.7'],
+  '/privacy': ['yearly', '0.3'],
+  '/terms': ['yearly', '0.3'],
+};
+const today = new Date().toISOString().slice(0, 10);
+const urls = Object.keys(PAGES).map((route) => {
+  const [changefreq, priority] = SITEMAP[route] || (route.startsWith('/products/') ? ['monthly', '0.9'] : ['yearly', '0.5']);
+  return `  <url>\n    <loc>${SITE_URL}${route}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+});
+fs.writeFileSync(
+  path.join(publicDir, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`,
+);
+console.log(`Wrote sitemap.xml with ${urls.length} pages`);

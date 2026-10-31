@@ -3,6 +3,7 @@ import CtaBand from '../components/CtaBand.jsx';
 import { Icon } from '../components/Icon.jsx';
 import PageHero from '../components/PageHero.jsx';
 import { PRODUCTS, PRODUCT_DETAILS } from '../data/products.js';
+import { productPath } from '../data/seo.js';
 import { useSeo } from '../hooks/useSeo.js';
 
 export default function Products() {
@@ -42,6 +43,9 @@ export default function Products() {
                     </div>
                   </div>
                   <p className="product-overview">{d.overview}</p>
+                  <Link className="link-arrow product-more" to={productPath(p.id)}>
+                    Explore {p.name}: screens, all features and FAQs <Icon name="arrow-right" />
+                  </Link>
                 </div>
                 <aside className="who-for reveal" aria-label={`Who ${p.name} is for`}>
                   <h3><Icon name="users" /> Who it's for</h3>
@@ -53,7 +57,7 @@ export default function Products() {
               </div>
               <h3 className="sr-only">Key features of {p.name}</h3>
               <ul className="grid grid--4 feature-grid" role="list">
-                {d.features.map((f) => (
+                {d.features.slice(0, 4).map((f) => (
                   <li className="reveal" key={f.title}>
                     <div className="feature">
                       <span className="dropdown-icon"><Icon name={f.icon} /></span>

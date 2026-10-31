@@ -56,7 +56,7 @@ module.exports = (env, argv) => {
       // index.html is the page shell; webpack adds the script and stylesheet tags.
       // minify:false keeps the tags readable for scripts/prerender-head.mjs.
       new HtmlWebpackPlugin({ template: 'index.html', inject: 'head', scriptLoading: 'defer', minify: false }),
-      // favicon, robots.txt, sitemap.xml, theme-init.js and /assets/img/* are copied as they are
+      // favicon, robots.txt, theme-init.js and /assets/img/* are copied as they are
       new CopyPlugin({ patterns: [{ from: 'public', to: '.', globOptions: { ignore: ['**/.DS_Store'] } }] }),
       ...(isProd ? [new MiniCssExtractPlugin({ filename: 'assets/[name]-[contenthash:8].css' })] : []),
     ],

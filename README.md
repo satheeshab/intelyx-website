@@ -89,7 +89,7 @@ client/                      React app (webpack + Babel)
   webpack.config.cjs         Build settings (Babel for JSX, CSS, dev server, production output)
   scripts/dev.cjs            Starts the dev server (npm run dev)
   index.html                 HTML shell: fonts, icons, Organization/LocalBusiness structured data
-  public/                    Copied as-is: favicon, robots.txt, sitemap.xml, theme-init.js, assets/img/*
+  public/                    Copied as-is: favicon, robots.txt, theme-init.js, assets/img/*
   scripts/prerender-head.mjs After the build: writes each page's own <title>/description/social tags
   src/
     main.jsx, App.jsx        Entry point and the list of pages (routes)
@@ -143,8 +143,13 @@ Things still to fill in are marked `EDIT ME` or `PLACEHOLDER`. Changes show up i
 
 **Adding a page.** Create `client/src/pages/Foo.jsx` (call `useSeo('/foo')`), add its route in
 `client/src/App.jsx`, add its title/description to `PAGES` in `client/src/data/seo.js` (this also
-pre-renders its `<head>` and registers the URL with the server), add it to
-`client/public/sitemap.xml`, and link to it from the header or footer.
+pre-renders its `<head>`, registers the URL with the server and adds it to the generated
+`sitemap.xml`), and link to it from the header or footer.
+
+**Product pages.** Each product has its own page at `/products/<id>`. Its name, overview and
+features come from `client/src/data/products.js`; its headline, search title, screens and FAQs
+come from `client/src/data/productPages.js`. The screens are illustrative mock-ups until you add
+`image: { src, alt }` with a real screenshot (see the notes at the top of that file).
 
 **Colours.** The look is warm cream paper, near-black ink and a terracotta accent. Edit the CSS
 variables at the top of `client/src/styles/style.css`:

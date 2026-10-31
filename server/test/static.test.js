@@ -17,6 +17,13 @@ test('known pages return their own pre-rendered HTML', async () => {
   assert.equal(res.headers.get('cache-control'), 'no-cache');
 });
 
+test('product pages under /products/ return their own pre-rendered HTML', async () => {
+  const res = await get('/products/schools-erp');
+  assert.equal(res.status, 200);
+  assert.match(await res.text(), /Schools ERP page/);
+  assert.equal((await get('/products/no-such-product')).status, 404);
+});
+
 test('unknown pages get the app shell with status 404', async () => {
   const res = await get('/no-such-page');
   assert.equal(res.status, 404);

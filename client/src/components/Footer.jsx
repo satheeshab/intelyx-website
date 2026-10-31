@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { PRODUCTS } from '../data/products.js';
+import { productPath } from '../data/seo.js';
 import { BrandIcon, Icon } from './Icon.jsx';
 import { Brand } from './Logo.jsx';
 
@@ -39,7 +40,7 @@ export default function Footer() {
               <ul className="footer-links">
                 {PRODUCTS.map((p) => (
                   <li key={p.id}>
-                    <Link to={{ pathname: '/products', hash: `#${p.id}` }}>{p.name}</Link>
+                    <Link to={productPath(p.id)}>{p.name}</Link>
                   </li>
                 ))}
               </ul>

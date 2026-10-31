@@ -1,9 +1,55 @@
 // Page titles, descriptions and structured data. Plain JavaScript (no JSX) so the build script
 // scripts/prerender-head.mjs can read it too: each page's <head> is written into the HTML that
 // the server sends, so search engines and link previews see the right text without running JavaScript.
-import { PRODUCTS } from './products.js';
+import { PRODUCT_PAGES } from './productPages.js';
+import { PRODUCTS, PRODUCT_DETAILS } from './products.js';
 
 export const SITE_URL = 'https://www.intelyx.co.in';
+
+/** URL path of a product's own page. */
+export const productPath = (id) => `/products/${id}`;
+
+/** <head> data for one product page: software details, its FAQs and the breadcrumb trail. */
+function productPage(p) {
+  const page = PRODUCT_PAGES[p.id];
+  const url = `${SITE_URL}${productPath(p.id)}`;
+  return {
+    title: page.seoTitle,
+    description: page.seoDescription,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'SoftwareApplication',
+          '@id': `${url}#software`,
+          name: `Intelyx ${p.name}`,
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'Web',
+          url,
+          description: PRODUCT_DETAILS[p.id].overview,
+          featureList: PRODUCT_DETAILS[p.id].features.map((f) => f.title),
+          publisher: { '@id': `${SITE_URL}/#organization` },
+        },
+        {
+          '@type': 'FAQPage',
+          mainEntity: page.faqs.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+          })),
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+            { '@type': 'ListItem', position: 2, name: 'Products', item: `${SITE_URL}/products` },
+            { '@type': 'ListItem', position: 3, name: p.name, item: url },
+          ],
+        },
+      ],
+    },
+  };
+}
 
 export const PAGES = {
   '/': {
@@ -27,13 +73,14 @@ export const PAGES = {
           name: `Intelyx ${p.name}`,
           applicationCategory: 'BusinessApplication',
           operatingSystem: 'Web',
-          url: `${SITE_URL}/products#${p.id}`,
+          url: `${SITE_URL}${productPath(p.id)}`,
           description: p.card,
           publisher: { '@id': `${SITE_URL}/#organization` },
         },
       })),
     },
   },
+  ...Object.fromEntries(PRODUCTS.map((p) => [productPath(p.id), productPage(p)])),
   '/about': {
     title: 'About Intelyx Tech Solutions LLP | Software company in Bengaluru',
     description:
