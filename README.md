@@ -6,7 +6,7 @@ server, which also sends the enquiry-form emails. It runs as one container on AW
 
 | | |
 |---|---|
-| **Front end** | React 19, React Router, Vite. Plain CSS with light/dark themes. |
+| **Front end** | React 19, React Router, Vite. Plain CSS: warm cream theme with serif headlines, plus a dark mode. |
 | **Back end** | Node.js 24 (works on 22.12+), Express 5, Nodemailer. |
 | **Email** | Amazon SES over SMTP (any SMTP service works). In development, emails are printed to the console. |
 | **Hosting** | One Docker container on an AWS Lightsail container service. |
@@ -141,21 +141,27 @@ Things still to fill in are marked `EDIT ME` or `PLACEHOLDER`. Changes show up i
 pre-renders its `<head>` and registers the URL with the server), add it to
 `client/public/sitemap.xml`, and link to it from the header or footer.
 
-**Colours.** Edit the CSS variables at the top of `client/src/styles/style.css`:
+**Colours.** The look is warm cream paper, near-black ink and a terracotta accent. Edit the CSS
+variables at the top of `client/src/styles/style.css`:
 
 | Variable | Light | Used for |
 |---|---|---|
-| `--color-ink` | `#0b1530` | Deep navy: headings, dark panels |
-| `--color-accent` | `#14b8a6` | Teal accent (decorative: icons, highlights) |
-| `--color-accent-strong` | `#0f766e` | Teal for buttons and links (passes WCAG AA on white) |
-| `--color-bg`, `--color-bg-alt`, `--color-surface` | soft neutrals | Page and card backgrounds |
-| `--color-text`, `--color-muted` | `#26304a`, `#5a6480` | Body and secondary text |
+| `--color-bg`, `--color-bg-alt`, `--color-surface` | `#faf9f5`, `#f0eee6`, `#ffffff` | Page, alternate section and card backgrounds |
+| `--color-heading`, `--color-text`, `--color-muted` | `#141413`, `#3d3d3a`, `#5e5d59` | Headlines, body and secondary text |
+| `--color-primary`, `--color-on-primary` | `#141413`, `#faf9f5` | Main buttons (a light button in dark mode) |
+| `--color-secondary-bg` | `#efede4` | Secondary buttons |
+| `--color-accent` | `#d97757` | Terracotta for decoration: icons, chart, highlights |
+| `--color-accent-strong` | `#a94727` | Terracotta for text and links (passes WCAG AA on every cream surface) |
+| `--color-band` | `#141413` | Dark panels: call-to-action band, mission card, industry tiles |
 
 Dark-mode values are defined twice below that block (once for the OS preference, once for the
-manual toggle): change both, and keep text at a contrast ratio of at least 4.5:1.
+manual toggle): change both, and keep text at a contrast ratio of at least 4.5:1. The logo keeps
+its own brand colours (`--logo-*`), so it does not change with the theme.
 
-**Fonts.** Plus Jakarta Sans and Inter load from Google Fonts (the link is in `client/index.html`);
-the names are the `--font-heading` and `--font-body` variables.
+**Fonts.** Headlines use **Newsreader** (a serif); body text, buttons, menus and labels use
+**Inter**; the "Intelyx" wordmark uses Plus Jakarta Sans, matching the logo files. All load from
+Google Fonts (the link is in `client/index.html`); the names are the `--font-heading`,
+`--font-body` and `--font-brand` variables.
 
 **Logo.** Ready-to-use files and rules are in [`brand/`](brand/README.md). On the website the mark
 is the `LogoMark` component (`client/src/components/Logo.jsx`), so it follows the theme colours.
