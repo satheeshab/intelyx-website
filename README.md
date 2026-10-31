@@ -279,6 +279,7 @@ mode, before rolling it out. Outlook desktop ignores rounded corners (the button
 | Symptom | Fix |
 |---|---|
 | `This project needs Node.js 20.19 or newer` (or a crash mentioning `styleText` or `node:util`) | Your Node.js is too old. Install the current LTS from [nodejs.org](https://nodejs.org), open a **new** terminal, check `node --version`, then run `npm install` and the command again. |
+| `memory allocation of … bytes failed` or a crash when starting `npm run dev` on Windows | A crash inside the build tool's native code. The project uses Vite 7 (not the newer Rust-based Vite 8) for this reason. After pulling the update, delete the `node_modules` folders (root, `client` and `server`) and run `npm install` again. If it still happens, close memory-hungry programs, exclude the project folder from your antivirus scanner, and check that Windows has free disk space for its page file. |
 | `npm run dev` says port 3001/5173 is in use | Another copy is running. Close it, or set `PORT=3002` (and `API_PORT=3002` for the client). |
 | Form says "email us directly" in development | The Node server isn't running (use `npm run dev`, not just Vite). |
 | Opened `http://localhost:3001` and see "website has not been built yet" | Run `npm run build` first, or use http://localhost:5173 while developing. |
