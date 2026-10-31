@@ -30,8 +30,10 @@ server, which also sends the enquiry-form emails. It runs as one container on AW
 
 ## 1. Run it locally
 
-You need **Node.js 22.12 or newer** (24 recommended; [nodejs.org](https://nodejs.org)). Nothing else:
-no database, no AWS account and no email settings.
+You need **Node.js 20.19 or newer** (22 or 24 recommended; download the LTS version from
+[nodejs.org](https://nodejs.org)). Check with `node --version`. Nothing else: no database, no AWS
+account and no email settings. If your Node.js is too old, the commands below stop with a clear
+message and tell you what to install. (`.nvmrc` pins Node 24 for `nvm use`.)
 
 ```bash
 git clone https://github.com/satheeshab/intelyx-website.git
@@ -110,6 +112,7 @@ server/                      Node.js server (Express)
   src/config.js              Environment variables and start-up checks
   test/                      Server tests (API, validation, SMTP delivery, static serving, config)
 
+scripts/                     check-node.mjs (friendly Node version check), run-tests.mjs (test runner)
 Dockerfile                   Production image (multi-stage: build, production dependencies, runtime)
 .github/workflows/deploy.yml Test on every pull request; deploy on every merge to main
 deploy/                      Script and policies that give GitHub permission to deploy
@@ -275,6 +278,7 @@ mode, before rolling it out. Outlook desktop ignores rounded corners (the button
 
 | Symptom | Fix |
 |---|---|
+| `This project needs Node.js 20.19 or newer` (or a crash mentioning `styleText` or `node:util`) | Your Node.js is too old. Install the current LTS from [nodejs.org](https://nodejs.org), open a **new** terminal, check `node --version`, then run `npm install` and the command again. |
 | `npm run dev` says port 3001/5173 is in use | Another copy is running. Close it, or set `PORT=3002` (and `API_PORT=3002` for the client). |
 | Form says "email us directly" in development | The Node server isn't running (use `npm run dev`, not just Vite). |
 | Opened `http://localhost:3001` and see "website has not been built yet" | Run `npm run build` first, or use http://localhost:5173 while developing. |

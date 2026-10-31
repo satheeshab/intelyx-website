@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build && node scripts/prerender-head.mjs",
     "preview": "vite preview",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node ../scripts/run-tests.mjs test"
   },
   "dependencies": {
     "react": "^19.3.1",

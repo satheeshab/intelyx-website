@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "node --watch --watch-path=src src/index.js",
     "start": "node src/index.js",
-    "test": "node --test \"test/*.test.js\"",
+    "test": "node ../scripts/run-tests.mjs test",
     "signature": "node scripts/build-signature.js"
   },
   "dependencies": {
