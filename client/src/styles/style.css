@@ -1466,19 +1466,6 @@ a:hover { color: var(--color-accent-hover); }
 .timeline-item h3 { font-size: 1.375rem; margin-bottom: 6px; }
 .timeline-item p { margin: 0; color: var(--color-muted); }
 
-.placeholder-note {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 6px 12px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: 999px;
-  color: var(--color-muted);
-  font-size: var(--fs-xs);
-}
-
-.placeholder-note .icon { width: 14px; height: 14px; }
 
 /* --------------------------------------------------------------------------
    11. Contact page & enquiry form
@@ -1910,18 +1897,6 @@ fieldset.field legend { margin-bottom: 8px; }
 .legal ul { padding-left: 1.25em; margin-bottom: 1em; }
 .legal li { margin-bottom: 0.4em; }
 
-.notice {
-  display: flex;
-  gap: 12px;
-  padding: 16px 18px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: 12px;
-  background: var(--color-surface);
-  color: var(--color-muted);
-  font-size: var(--fs-sm);
-}
-
-.notice .icon { width: 20px; height: 20px; color: var(--color-accent-strong); margin-top: 2px; }
 
 .not-found {
   display: grid;

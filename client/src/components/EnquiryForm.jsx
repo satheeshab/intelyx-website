@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PRODUCTS } from '../data/products.js';
+import { trackEvent } from '../lib/analytics.js';
 import { sendEnquiry } from '../lib/api.js';
 import {
   FIELD_ORDER, MESSAGE_MAX, PRODUCT_LABELS, buildMailto, buildPayload, firstName, isoDate,
@@ -114,6 +115,7 @@ export default function EnquiryForm() {
     const result = await sendEnquiry(payload);
 
     if (result.ok) {
+      trackEvent('Enquiry', { type: payload.enquiryType, product: payload.product });
       setSentName(firstName(payload.name));
       setStatus('success');
       setAnnouncement('');

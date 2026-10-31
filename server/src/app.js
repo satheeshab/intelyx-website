@@ -35,12 +35,13 @@ export function createApp({ config, mailer, logger = createLogger() }) {
         useDefaults: false,
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
+          // plausible.io: privacy-friendly analytics (only loaded when set up; see client/src/lib/analytics.js)
+          scriptSrc: ["'self'", 'https://plausible.io'],
           styleSrc: ["'self'", 'https://fonts.googleapis.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
           imgSrc: ["'self'", 'data:', 'https://*.google.com', 'https://*.googleapis.com', 'https://*.gstatic.com'],
           frameSrc: ['https://www.google.com', 'https://maps.google.com'],
-          connectSrc: ["'self'"],
+          connectSrc: ["'self'", 'https://plausible.io'],
           formAction: ["'self'"],
           frameAncestors: ["'none'"],
           baseUri: ["'self'"],
