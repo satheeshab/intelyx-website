@@ -41,7 +41,7 @@ export function loadConfig(env = process.env) {
     isProd,
     port: int(env.PORT, 3001),
     // Behind the Lightsail load balancer there is one proxy hop. Locally, trust loopback
-    // so the Vite dev proxy works without rate-limit warnings.
+    // so the dev-server proxy works without rate-limit warnings.
     trustProxy: env.TRUST_PROXY !== undefined && env.TRUST_PROXY !== '' ? int(env.TRUST_PROXY, 1) : isProd ? 1 : 'loopback',
     clientDist: env.CLIENT_DIST ? path.resolve(env.CLIENT_DIST) : path.join(REPO_ROOT, 'client', 'dist'),
 

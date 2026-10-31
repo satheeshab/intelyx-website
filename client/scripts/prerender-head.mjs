@@ -1,5 +1,5 @@
 /**
- * Runs after `vite build`. Writes one HTML file per page into dist/pages/, identical to the built
+ * Runs after the webpack production build. Writes one HTML file per page into dist/pages/, identical to the built
  * index.html except for the page-specific <head> (title, description, canonical, social tags and
  * structured data). The Node server sends the matching file for each URL, so crawlers and link
  * previews see the right text even though the page itself is rendered by React in the browser.
@@ -23,17 +23,30 @@ function replaceTag(html, pattern, replacement, name) {
   return html.replace(pattern, () => replacement);
 }
 
+// webpack may minify the page shell (dropping quotes around attribute values), so each pattern
+// accepts quoted and unquoted attribute values.
+const VALUE = '(?:"[^"]*"|\'[^\']*\'|[^\\s>]+)';
+const tag = (name, attr, key, valueAttr) =>
+  new RegExp(`<${name}\\s+${attr}=["']?${key}["']?\\s+${valueAttr}=${VALUE}\\s*/?>`);
+const TAGS = {
+  description: tag('meta', 'name', 'description', 'content'),
+  ogTitle: tag('meta', 'property', 'og:title', 'content'),
+  ogDescription: tag('meta', 'property', 'og:description', 'content'),
+  ogUrl: tag('meta', 'property', 'og:url', 'content'),
+  canonical: tag('link', 'rel', 'canonical', 'href'),
+};
+
 function render(page, url) {
   let html = template;
   html = replaceTag(html, /<title>[^<]*<\/title>/, `<title>${esc(page.title)}</title>`, 'title');
-  html = replaceTag(html, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(page.description)}">`, 'description');
-  html = replaceTag(html, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(page.title)}">`, 'og:title');
-  html = replaceTag(html, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(page.description)}">`, 'og:description');
+  html = replaceTag(html, TAGS.description, `<meta name="description" content="${esc(page.description)}">`, 'description');
+  html = replaceTag(html, TAGS.ogTitle, `<meta property="og:title" content="${esc(page.title)}">`, 'og:title');
+  html = replaceTag(html, TAGS.ogDescription, `<meta property="og:description" content="${esc(page.description)}">`, 'og:description');
   if (url) {
-    html = replaceTag(html, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`, 'canonical');
-    html = replaceTag(html, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${url}">`, 'og:url');
+    html = replaceTag(html, TAGS.canonical, `<link rel="canonical" href="${url}">`, 'canonical');
+    html = replaceTag(html, TAGS.ogUrl, `<meta property="og:url" content="${url}">`, 'og:url');
   } else {
-    html = html.replace(/\s*<link rel="canonical" href="[^"]*">/, '').replace(/\s*<meta property="og:url" content="[^"]*">/, '');
+    html = html.replace(new RegExp(`\\s*${TAGS.canonical.source}`), '').replace(new RegExp(`\\s*${TAGS.ogUrl.source}`), '');
   }
   const extra = [];
   if (page.noindex) extra.push('<meta name="robots" content="noindex">');

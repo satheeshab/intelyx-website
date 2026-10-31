@@ -1,4 +1,4 @@
-// Sends the enquiry to the Node server (same origin in production; proxied by Vite in development).
+// Sends the enquiry to the Node server (same origin in production; proxied by the dev server in development).
 export const ENQUIRY_URL = '/api/enquiry';
 const TIMEOUT_MS = 15_000;
 
