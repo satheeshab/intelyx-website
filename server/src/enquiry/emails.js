@@ -53,35 +53,35 @@ export function buildTeamEmail(d, submittedAt = nowIst()) {
 
   const valueHtml = (label, value) => {
     const safe = escapeHtml(value);
-    if (label === 'Email') return `<a href="mailto:${safe}" style="color:#0f766e;">${safe}</a>`;
-    if (label === 'Phone') return `<a href="tel:${escapeHtml(d.phone)}" style="color:#0f766e;">${safe}</a>`;
-    if (label === 'Page' && d.pageUrl) return `<a href="${safe}" style="color:#0f766e;">${safe}</a>`;
+    if (label === 'Email') return `<a href="mailto:${safe}" style="color:#a94727;">${safe}</a>`;
+    if (label === 'Phone') return `<a href="tel:${escapeHtml(d.phone)}" style="color:#a94727;">${safe}</a>`;
+    if (label === 'Page' && d.pageUrl) return `<a href="${safe}" style="color:#a94727;">${safe}</a>`;
     return safe.replace(/\n/g, '<br>');
   };
 
   const tableRows = rows
     .map(([label, value], i) => `
         <tr>
-          <th align="left" valign="top" style="width:170px; padding:10px 14px; font-family:${font}; font-size:13px; font-weight:bold; color:#5a6480; background:${i % 2 ? '#ffffff' : '#f5f7fb'}; border-bottom:1px solid #e2e7f0;">${escapeHtml(label)}</th>
-          <td valign="top" style="padding:10px 14px; font-family:${font}; font-size:14px; line-height:21px; color:#0b1530; background:${i % 2 ? '#ffffff' : '#f5f7fb'}; border-bottom:1px solid #e2e7f0; word-break:break-word;">${valueHtml(label, value)}</td>
+          <th align="left" valign="top" style="width:170px; padding:10px 14px; font-family:${font}; font-size:13px; font-weight:bold; color:#5e5d59; background:${i % 2 ? '#ffffff' : '#f6f5ef'}; border-bottom:1px solid #e8e6dc;">${escapeHtml(label)}</th>
+          <td valign="top" style="padding:10px 14px; font-family:${font}; font-size:14px; line-height:21px; color:#141413; background:${i % 2 ? '#ffffff' : '#f6f5ef'}; border-bottom:1px solid #e8e6dc; word-break:break-word;">${valueHtml(label, value)}</td>
         </tr>`)
     .join('');
 
   const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(heading)}</title></head>
-<body style="margin:0; padding:0; background:#f2f5fa;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f2f5fa;">
+<body style="margin:0; padding:0; background:#f0eee6;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0eee6;">
     <tr><td align="center" style="padding:24px 12px;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px; background:#ffffff; border:1px solid #e2e7f0; border-radius:10px; overflow:hidden;">
-        <tr><td style="padding:20px 24px; background:#0b1530; font-family:${font}; color:#ffffff;">
-          <div style="font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#5eead4;">Intelyx website</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px; background:#ffffff; border:1px solid #e8e6dc; border-radius:10px; overflow:hidden;">
+        <tr><td style="padding:20px 24px; background:#141413; font-family:${font}; color:#ffffff;">
+          <div style="font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#e8896a;">Intelyx website</div>
           <div style="font-size:20px; font-weight:bold; padding-top:4px;">${escapeHtml(heading)}: ${escapeHtml(PRODUCTS[d.product])}</div>
         </td></tr>
         <tr><td style="padding:0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">${tableRows}
           </table>
         </td></tr>
-        <tr><td style="padding:16px 24px; font-family:${font}; font-size:12px; color:#5a6480;">
+        <tr><td style="padding:16px 24px; font-family:${font}; font-size:12px; color:#5e5d59;">
           Reply to this email to respond directly to ${escapeHtml(d.name)}.
         </td></tr>
       </table>
@@ -123,18 +123,18 @@ export function buildAckEmail(d) {
 <body style="margin:0; padding:0; background:#ffffff;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr><td align="left" style="padding:24px 16px;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; font-family:${font}; font-size:15px; line-height:24px; color:#26304a;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; font-family:${font}; font-size:15px; line-height:24px; color:#3d3d3a;">
         <tr><td style="padding:0 0 16px 0;">
           <p style="margin:0 0 16px 0;">Hi ${escapeHtml(first)},</p>
           <p style="margin:0 0 16px 0;">${intro}</p>
           ${when}
-          <p style="margin:0 0 16px 0;">If anything is urgent, call or WhatsApp us on <a href="tel:+919380577396" style="color:#0f766e;">+91 93805 77396</a>, or simply reply to this email.</p>
+          <p style="margin:0 0 16px 0;">If anything is urgent, call or WhatsApp us on <a href="tel:+919380577396" style="color:#a94727;">+91 93805 77396</a>, or simply reply to this email.</p>
           <p style="margin:0 0 24px 0;">Warm regards,</p>
         </td></tr>
         <tr><td>
 ${signatureHtml(team)}
         </td></tr>
-        <tr><td style="padding:24px 0 0 0; font-size:11px; line-height:16px; color:#5a6480;">
+        <tr><td style="padding:24px 0 0 0; font-size:11px; line-height:16px; color:#5e5d59;">
           You received this email because you submitted an enquiry on www.intelyx.co.in. We use your details only to respond to your enquiry.
         </td></tr>
       </table>

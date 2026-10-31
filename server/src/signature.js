@@ -30,8 +30,8 @@ const escapeHtml = (value) =>
  */
 export function signatureHtml({ name = '[Full Name]', designation = '[Designation]' } = {}) {
   const font = 'Arial, Helvetica, sans-serif';
-  const link = 'color:#0f766e; text-decoration:none;';
-  const row = `font-family:${font}; font-size:13px; line-height:20px; color:#3b4560; padding:0 0 2px 0;`;
+  const link = 'color:#a94727; text-decoration:none;';
+  const row = `font-family:${font}; font-size:13px; line-height:20px; color:#3d3d3a; padding:0 0 2px 0;`;
 
   return `<!-- Intelyx email signature: start -->
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:500px; width:100%; border-collapse:collapse; font-family:${font};">
@@ -41,13 +41,13 @@ export function signatureHtml({ name = '[Full Name]', designation = '[Designatio
     </td>
   </tr>
   <tr>
-    <td style="border-top:2px solid #14b8a6; padding:12px 0 0 0;">
+    <td style="border-top:2px solid #d97757; padding:12px 0 0 0;">
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
-          <td style="font-family:${font}; font-size:16px; line-height:22px; font-weight:bold; color:#0b1530; padding:0 0 2px 0;">${escapeHtml(name)}</td>
+          <td style="font-family:${font}; font-size:16px; line-height:22px; font-weight:bold; color:#141413; padding:0 0 2px 0;">${escapeHtml(name)}</td>
         </tr>
         <tr>
-          <td style="font-family:${font}; font-size:13px; line-height:20px; color:#5a6480; padding:0 0 10px 0;">${escapeHtml(designation)}, Intelyx Tech Solutions LLP</td>
+          <td style="font-family:${font}; font-size:13px; line-height:20px; color:#5e5d59; padding:0 0 10px 0;">${escapeHtml(designation)}, Intelyx Tech Solutions LLP</td>
         </tr>
         <tr>
           <td style="${row}">&#128222;&nbsp; <a href="tel:+919380577396" style="${link}">+91 93805 77396</a></td>
@@ -66,8 +66,8 @@ export function signatureHtml({ name = '[Full Name]', designation = '[Designatio
             <!-- Bulletproof button: coloured table cell, shows even with images blocked -->
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">
               <tr>
-                <td align="center" bgcolor="#0f766e" style="background-color:#0f766e; border-radius:6px; padding:10px 18px; mso-padding-alt:10px 18px;">
-                  <a href="${DEMO_URL}" target="_blank" style="font-family:${font}; font-size:14px; line-height:18px; font-weight:bold; color:#ffffff; text-decoration:none; display:inline-block;">Request a Demo &rarr;</a>
+                <td align="center" bgcolor="#141413" style="background-color:#141413; border-radius:6px; padding:10px 18px; mso-padding-alt:10px 18px;">
+                  <a href="${DEMO_URL}" target="_blank" style="font-family:${font}; font-size:14px; line-height:18px; font-weight:bold; color:#faf9f5; text-decoration:none; display:inline-block;">Request a Demo &rarr;</a>
                 </td>
               </tr>
             </table>

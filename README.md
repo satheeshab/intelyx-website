@@ -155,13 +155,12 @@ variables at the top of `client/src/styles/style.css`:
 | `--color-band` | `#141413` | Dark panels: call-to-action band, mission card, industry tiles |
 
 Dark-mode values are defined twice below that block (once for the OS preference, once for the
-manual toggle): change both, and keep text at a contrast ratio of at least 4.5:1. The logo keeps
-its own brand colours (`--logo-*`), so it does not change with the theme.
+manual toggle): change both, and keep text at a contrast ratio of at least 4.5:1. The logo colours
+are separate variables (`--logo-*`).
 
-**Fonts.** Headlines use **Newsreader** (a serif); body text, buttons, menus and labels use
-**Inter**; the "Intelyx" wordmark uses Plus Jakarta Sans, matching the logo files. All load from
-Google Fonts (the link is in `client/index.html`); the names are the `--font-heading`,
-`--font-body` and `--font-brand` variables.
+**Fonts.** Headlines and the "Intelyx" wordmark use **Newsreader** (a serif); body text, buttons,
+menus and labels use **Inter**. Both load from Google Fonts (the link is in `client/index.html`);
+the names are the `--font-heading` and `--font-body` variables.
 
 **Logo.** Ready-to-use files and rules are in [`brand/`](brand/README.md). On the website the mark
 is the `LogoMark` component (`client/src/components/Logo.jsx`), so it follows the theme colours.
