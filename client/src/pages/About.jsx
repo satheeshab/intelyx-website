@@ -128,7 +128,6 @@ export default function About() {
           <div className="section-header section-header--center reveal">
             <p className="eyebrow">Our journey</p>
             <h2 id="journey-title">Milestones so far</h2>
-            <p className="placeholder-note"><Icon name="edit" /> Placeholder milestones: edit these in client/src/pages/About.jsx</p>
           </div>
           <ol className="timeline">
             {MILESTONES.map((m) => (
