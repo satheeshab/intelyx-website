@@ -1,0 +1,22 @@
+{
+  "name": "@intelyx/client",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Intelyx website front end (React + Vite)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/prerender-head.mjs",
+    "preview": "vite preview",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.5"
+  }
+}

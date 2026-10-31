@@ -1,0 +1,16 @@
+# Keep the build context small and never copy secrets into an image
+.git
+.github
+node_modules
+**/node_modules
+client/dist
+.env
+.env.*
+!.env.example
+brand
+email-signature
+deploy
+*.md
+Dockerfile
+.dockerignore
+**/.DS_Store
