@@ -1,0 +1,28 @@
+{
+  "name": "intelyx-website",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Intelyx website: React single-page app served by a Node.js (Express) API server",
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "predev": "node scripts/check-node.mjs",
+    "dev": "concurrently -k -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "prebuild": "node scripts/check-node.mjs",
+    "build": "npm run build -w client",
+    "prestart": "node scripts/check-node.mjs",
+    "start": "npm run start -w server",
+    "pretest": "node scripts/check-node.mjs",
+    "test": "npm test -w server && npm test -w client",
+    "signature": "npm run signature -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}

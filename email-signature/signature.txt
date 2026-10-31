@@ -5,4 +5,4 @@
 🌐 www.intelyx.co.in
 📍 Sarjapura Road, Bengaluru, India
 
-Request a Demo: https://www.intelyx.co.in/contact.html?type=demo&utm_source=email&utm_medium=signature#enquiry
+Request a Demo: https://www.intelyx.co.in/contact?type=demo&utm_source=email&utm_medium=signature#enquiry

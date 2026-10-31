@@ -1,46 +1,239 @@
-# Deploys the static website to S3 + CloudFront on every push to main.
-# Uses GitHub OIDC to assume an AWS role, so no long-lived AWS keys are stored.
+# Test every pull request; deploy to AWS Lightsail after every merge to main.
 #
-# One-time setup (see README → "Optional: deploy from GitHub Actions"):
-#   Repository → Settings → Secrets and variables → Actions → Variables:
-#     AWS_DEPLOY_ROLE_ARN         GitHubDeployRoleArn output of infra/hosting.yaml
-#     S3_BUCKET                   BucketName output
-#     CLOUDFRONT_DISTRIBUTION_ID  DistributionId output
-#     AWS_REGION                  (optional) region of the bucket, default us-east-1
-name: Deploy website
+#   pull request  -> tests, build, Docker image build + smoke test (nothing is deployed)
+#   merge to main -> the same checks, then the image is pushed to Lightsail and deployed
+#
+# Signs in to AWS with GitHub OIDC (short-lived tokens): no AWS access keys are stored in GitHub.
+# One-time setup: see DEPLOY.md. Settings → Secrets and variables → Actions:
+#   Variables: AWS_DEPLOY_ROLE_ARN (required), AWS_REGION (default ap-south-1),
+#              LIGHTSAIL_SERVICE (default intelyx-web), SMTP_HOST, TO_EMAIL, FROM_EMAIL, FROM_NAME, SEND_ACK
+#   Secrets:   SMTP_USER, SMTP_PASS
+# Until AWS_DEPLOY_ROLE_ARN exists, the deploy job is skipped with a notice instead of failing.
+name: Test and deploy
 
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "backend/**"
-      - "infra/**"
-      - "README.md"
-      - "email-signature/**"
-      - "brand/**"
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  id-token: write   # required for OIDC
   contents: read
 
+# Only one deploy at a time; a newer merge waits for the running one. Pull request runs may be cancelled.
 concurrency:
-  group: deploy-website
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'deploy-production' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  deploy:
+  # ---------------------------------------------------------------------------
+  # Tests, production build and a smoke test of the real container image
+  # ---------------------------------------------------------------------------
+  check:
+    name: Test and build
     runs-on: ubuntu-latest
-    if: ${{ vars.AWS_DEPLOY_ROLE_ARN != '' }}
+    timeout-minutes: 15
     steps:
-      - name: Check out
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build the website
+        run: npm run build
+
+      - name: Build the container image
+        run: docker build -t intelyx-web:ci .
+
+      - name: Smoke test the container
+        run: |
+          docker run -d --name web -p 8080:8080 -e ALLOW_LOG_EMAIL=true intelyx-web:ci
+          for i in $(seq 1 20); do
+            curl -fsS http://localhost:8080/healthz >/dev/null 2>&1 && break
+            sleep 1
+          done
+          curl -fsS http://localhost:8080/healthz
+          curl -fsS http://localhost:8080/ | grep -q '<div id="root">'
+          curl -fsS http://localhost:8080/about | grep -q 'About Intelyx'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/no-such-page)" = "404"
+          docker logs web
+          docker rm -f web
+
+  # ---------------------------------------------------------------------------
+  # Deploy to Lightsail (merges to main and manual runs only)
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy to Lightsail
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'ap-south-1' }}
+      SERVICE: ${{ vars.LIGHTSAIL_SERVICE || 'intelyx-web' }}
+    steps:
+      - name: Check AWS settings
+        id: cfg
+        env:
+          ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          if [[ -z "$ROLE" ]]; then
+            echo "::notice title=Deploy skipped::Set the AWS_DEPLOY_ROLE_ARN variable (Settings → Secrets and variables → Actions → Variables). See DEPLOY.md."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
 
       - name: Configure AWS credentials (OIDC)
+        if: steps.cfg.outputs.ready == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          role-session-name: intelyx-deploy-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy to S3 and invalidate CloudFront
-        run: ./scripts/deploy-site.sh "${{ vars.S3_BUCKET }}" "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}"
+      - name: Install the Lightsail plugin (lightsailctl)
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          sudo curl -fsSL "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o /usr/local/bin/lightsailctl
+          sudo chmod +x /usr/local/bin/lightsailctl
+          lightsailctl --version || true
+
+      - name: Check the container service exists
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          state=$(aws lightsail get-container-services --service-name "$SERVICE" --query 'containerServices[0].state' --output text)
+          echo "Service $SERVICE is $state"
+          if [[ "$state" != "READY" && "$state" != "RUNNING" && "$state" != "DEPLOYING" ]]; then
+            echo "::error::Container service '$SERVICE' is '$state'. Wait until it is READY or RUNNING (see DEPLOY.md, step 2)."
+            exit 1
+          fi
+
+      - name: Build the container image
+        if: steps.cfg.outputs.ready == 'true'
+        run: docker build --platform linux/amd64 -t "intelyx-web:${GITHUB_SHA}" .
+
+      - name: Push the image to Lightsail
+        if: steps.cfg.outputs.ready == 'true'
+        id: push
+        run: |
+          aws lightsail push-container-image --service-name "$SERVICE" --label web --image "intelyx-web:${GITHUB_SHA}"
+          # The newest registered image, e.g. ":intelyx-web.web.12"
+          image=$(aws lightsail get-container-images --service-name "$SERVICE" --query 'containerImages[0].image' --output text)
+          echo "Deploying image $image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: Create the deployment
+        if: steps.cfg.outputs.ready == 'true'
+        id: deploy
+        env:
+          IMAGE: ${{ steps.push.outputs.image }}
+          SMTP_HOST: ${{ vars.SMTP_HOST || 'email-smtp.ap-south-1.amazonaws.com' }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          TO_EMAIL: ${{ vars.TO_EMAIL || 'office@intelyx.co.in' }}
+          FROM_EMAIL: ${{ vars.FROM_EMAIL || 'no-reply@intelyx.co.in' }}
+          FROM_NAME: ${{ vars.FROM_NAME || 'Intelyx Website' }}
+          SEND_ACK: ${{ vars.SEND_ACK || 'false' }}
+        run: |
+          if [[ -z "$SMTP_USER" || -z "$SMTP_PASS" ]]; then
+            echo "::error::Add the SMTP_USER and SMTP_PASS secrets (Settings → Secrets and variables → Actions → Secrets). See DEPLOY.md, step 1."
+            exit 1
+          fi
+
+          # Container definition. Written to a temporary file on the runner (never printed).
+          jq -n \
+            --arg image "$IMAGE" --arg host "$SMTP_HOST" --arg user "$SMTP_USER" --arg pass "$SMTP_PASS" \
+            --arg to "$TO_EMAIL" --arg from "$FROM_EMAIL" --arg name "$FROM_NAME" --arg ack "$SEND_ACK" \
+            '{web: {
+                image: $image,
+                ports: {"8080": "HTTP"},
+                environment: {
+                  NODE_ENV: "production", PORT: "8080", FORCE_HTTPS: "true",
+                  APEX_HOST: "intelyx.co.in", CANONICAL_HOST: "www.intelyx.co.in",
+                  SMTP_HOST: $host, SMTP_PORT: "587", SMTP_USER: $user, SMTP_PASS: $pass,
+                  TO_EMAIL: $to, FROM_EMAIL: $from, FROM_NAME: $name, SEND_ACK: $ack
+                }
+              }}' > "$RUNNER_TEMP/containers.json"
+
+          # Public endpoint: HTTPS is terminated by Lightsail; /healthz tells it the container is ready.
+          cat > "$RUNNER_TEMP/endpoint.json" <<'JSON'
+          {
+            "containerName": "web",
+            "containerPort": 8080,
+            "healthCheck": {
+              "healthyThreshold": 2, "unhealthyThreshold": 3,
+              "timeoutSeconds": 5, "intervalSeconds": 10,
+              "path": "/healthz", "successCodes": "200-299"
+            }
+          }
+          JSON
+
+          version=$(aws lightsail create-container-service-deployment \
+            --service-name "$SERVICE" \
+            --containers "file://$RUNNER_TEMP/containers.json" \
+            --public-endpoint "file://$RUNNER_TEMP/endpoint.json" \
+            --query 'containerService.nextDeployment.version' --output text)
+          rm -f "$RUNNER_TEMP/containers.json"
+          echo "Created deployment version $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "url=$(aws lightsail get-container-services --service-name "$SERVICE" --query 'containerServices[0].url' --output text)" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for the new version to go live
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          VERSION: ${{ steps.deploy.outputs.version }}
+        run: |
+          # Lightsail starts the new container, waits for /healthz to pass, then switches traffic.
+          # If the new version never becomes healthy it is marked FAILED and the old one keeps serving.
+          for i in $(seq 1 60); do
+            state=$(aws lightsail get-container-service-deployments --service-name "$SERVICE" \
+              --query "deployments[?version==\`${VERSION}\`].state | [0]" --output text)
+            echo "[$i/60] deployment $VERSION: $state"
+            if [[ "$state" == "ACTIVE" ]]; then exit 0; fi
+            if [[ "$state" == "FAILED" ]]; then
+              echo "::error::Deployment $VERSION failed its health checks. The previous version is still serving traffic. Check the container logs (DEPLOY.md, 'Logs')."
+              exit 1
+            fi
+            sleep 20
+          done
+          echo "::error::Timed out waiting for deployment $VERSION."
+          exit 1
+
+      - name: Smoke test the live site
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          VERSION: ${{ steps.deploy.outputs.version }}
+        run: |
+          url="${URL%/}"
+          for path in /healthz / /products /contact; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$url$path")
+            echo "$url$path -> $code"
+            [[ "$code" == "200" ]] || { echo "::error::$url$path returned $code"; exit 1; }
+          done
+          {
+            echo "### Deployed to Lightsail"
+            echo "- Commit: \`${GITHUB_SHA::10}\`"
+            echo "- Deployment version: $VERSION"
+            echo "- Service URL: $url"
+            echo "- Site: https://www.intelyx.co.in (once the custom domain is attached)"
+          } >> "$GITHUB_STEP_SUMMARY"

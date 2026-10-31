@@ -1,0 +1,21 @@
+{
+  "name": "@intelyx/server",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Express server: serves the React app and sends enquiry emails",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch --watch-path=src src/index.js",
+    "start": "node src/index.js",
+    "test": "node ../scripts/run-tests.mjs test",
+    "signature": "node scripts/build-signature.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.2",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.2",
+    "helmet": "^8.3.0",
+    "nodemailer": "^10.3.1"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DeployContainersToLightsail",
+      "Effect": "Allow",
+      "Action": [
+        "lightsail:GetContainerServices",
+        "lightsail:GetContainerImages",
+        "lightsail:GetContainerServiceDeployments",
+        "lightsail:CreateContainerServiceRegistryLogin",
+        "lightsail:RegisterContainerImage",
+        "lightsail:CreateContainerServiceDeployment"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "__REGION__"
+        }
+      }
+    }
+  ]
+}

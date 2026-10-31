@@ -1,3 +1,0 @@
-# Keep the Lambda package small: tests and helper scripts are not deployed.
-test/
-scripts/

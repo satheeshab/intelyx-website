@@ -1,530 +1,288 @@
 # Intelyx website
 
-Marketing website for **Intelyx Tech Solutions LLP**, plus the serverless backend
-that emails website enquiries to `office@intelyx.co.in`.
+Website for **Intelyx Tech Solutions LLP**: a React single-page app served by a Node.js (Express)
+server, which also sends the enquiry-form emails. It runs as one container on AWS Lightsail and
+**deploys automatically after every merge to `main`**.
 
-- **Frontend:** plain HTML5, CSS3 and vanilla JavaScript. No framework, no build step.
-- **Hosting:** private Amazon S3 bucket behind Amazon CloudFront (HTTPS, HTTP/2 + HTTP/3).
-- **Enquiry form:** Browser → API Gateway (HTTP API) → AWS Lambda (Node.js) → Amazon SES → `office@intelyx.co.in`.
+| | |
+|---|---|
+| **Front end** | React 19, React Router, Vite. Plain CSS: warm cream theme with serif headlines, plus a dark mode. |
+| **Back end** | Node.js 24 (works on 22.12+), Express 5, Nodemailer. |
+| **Email** | Amazon SES over SMTP (any SMTP service works). In development, emails are printed to the console. |
+| **Hosting** | One Docker container on an AWS Lightsail container service. |
+| **Deploys** | GitHub Actions: test → build image → push to Lightsail → health check. |
 
-```
-                       ┌────────────────────────────── us-east-1 (global) ─────────────────────────────┐
- Visitor ── HTTPS ──▶  │ CloudFront ── CloudFront Function (apex→www, clean URLs) ── S3 bucket (OAC)    │
-                       │     └─ ACM certificate · security headers · cache policies                     │
-                       └────────────────────────────────────────────────────────────────────────────────┘
-                       ┌────────────────────────────── ap-south-1 (Mumbai) ────────────────────────────┐
- Enquiry form ─ POST ▶ │ API Gateway HTTP API /enquiry ──▶ Lambda ──▶ Amazon SES ──▶ office@intelyx.co.in│
-                       │   (CORS, 5 req/s, burst 10)       (validate,   (DKIM, SPF, DMARC)               │
-                       │                                    sanitise)                                     │
-                       └────────────────────────────────────────────────────────────────────────────────┘
-```
-
-**Tagline options** (option 1 is used on the site):
-
-1. *Intelligent software for the way you run your business.* (chosen: clear, benefit-led and works for every audience)
-2. *Run your institution with clarity, not complexity.*
-3. *Dependable software for schools, hospitals and growing businesses.*
-
----
+> **Deploying for the first time?** Follow **[DEPLOY.md](DEPLOY.md)**.
 
 ## Contents
 
-1. [Project structure](#1-project-structure)
-2. [Preview locally](#2-preview-locally)
-3. [Editing content, colours and fonts](#3-editing-content-colours-and-fonts)
-4. [Setting the API endpoint (config.js)](#4-setting-the-api-endpoint-configjs)
-5. [Amazon SES setup](#5-amazon-ses-setup-ap-south-1)
-6. [Deploy the enquiry backend](#6-deploy-the-enquiry-backend-sam)
-7. [Hosting: S3 + CloudFront, custom domain and SSL](#7-hosting-s3--cloudfront-custom-domain-and-ssl)
-8. [Deploy the website and invalidate the cache](#8-deploy-the-website-and-invalidate-the-cache)
-9. [Optional: deploy from GitHub Actions (OIDC)](#9-optional-deploy-from-github-actions-oidc)
-10. [Email signature](#10-email-signature)
-11. [Testing checklist](#11-testing-checklist)
-12. [Troubleshooting](#12-troubleshooting)
+1. [Run it locally](#1-run-it-locally)
+2. [Project structure](#2-project-structure)
+3. [Editing content, colours and logo](#3-editing-content-colours-and-logo)
+4. [How the enquiry form works](#4-how-the-enquiry-form-works)
+5. [Configuration (environment variables)](#5-configuration-environment-variables)
+6. [Tests](#6-tests)
+7. [Email signature](#7-email-signature)
+8. [Testing checklist before launch](#8-testing-checklist-before-launch)
+9. [Troubleshooting](#9-troubleshooting)
 
 ---
 
-## 1. Project structure
+## 1. Run it locally
 
-```
-/index.html              Home + products overview
-/products.html           One section per product (#schools-erp, #hospitals-erp, #accounting, #service-booking)
-/about.html              Who we are, mission, vision, values, journey
-/contact.html            Contact details, map and the enquiry / demo form (#enquiry)
-/privacy.html            Privacy Policy (placeholder draft, have it reviewed)
-/terms.html              Terms of Service (placeholder draft, have it reviewed)
-/404.html                Not-found page (served by CloudFront for missing paths)
-/favicon.svg, /robots.txt, /sitemap.xml
-
-/assets/css/style.css    All styles. Colours and fonts are CSS variables at the top.
-/assets/js/theme-init.js Applies the saved light/dark theme before first paint; loads fonts
-/assets/js/config.js     The enquiry API URL: the one place to edit after deploying the backend
-/assets/js/main.js       Navigation, dropdown, theme toggle, scroll animations
-/assets/js/enquiry.js    Enquiry form: pre-fill, validation, sending, success/error states
-/assets/img/             Logo (SVG), email logo (PNG, 2x), Open Graph image, Apple touch icon
-
-/backend/enquiry-lambda/ index.mjs (Lambda handler), signature.mjs (shared email signature),
-                         test/ (unit tests), scripts/build-signature.mjs
-/infra/template.yaml     AWS SAM template for the enquiry API (deploy in ap-south-1)
-/infra/samconfig.toml    Defaults for `sam deploy`
-/infra/hosting.yaml      CloudFormation for S3 + CloudFront + ACM + Route 53 (deploy in us-east-1)
-/scripts/deploy-site.sh  Uploads the site to S3 with the right cache headers, then invalidates CloudFront
-/.github/workflows/deploy.yml  Optional automatic deploy on push to main (GitHub OIDC)
-/email-signature/        signature.html and signature.txt
-/brand/                  Logo files (SVG + PNG, light/dark/one-colour versions) and usage guide
-```
-
-Icons are inline SVG inside the HTML. There are no external images, scripts or stock photos;
-the only third-party resources are Google Fonts and the Google Maps embed on the contact page.
-
-## 2. Preview locally
-
-Pages use root-relative paths (`/assets/...`), so open them through a local web server
-rather than by double-clicking the file:
+You need **Node.js 20.19 or newer** (22 or 24 recommended; download the LTS version from
+[nodejs.org](https://nodejs.org)). Check with `node --version`. Nothing else: no database, no AWS
+account and no email settings. If your Node.js is too old, the commands below stop with a clear
+message and tell you what to install. (`.nvmrc` pins Node 24 for `nvm use`.)
 
 ```bash
-python3 -m http.server 8080
-# then open http://localhost:8080
+git clone https://github.com/satheeshab/intelyx-website.git
+cd intelyx-website
+npm install
+npm run dev
 ```
 
-`http://localhost:8080` (and `:5500` for VS Code Live Server) is already allowed by the API's
-CORS settings, so you can test the real form against the deployed backend.
+Open **http://localhost:5173**. This starts two things together:
 
-## 3. Editing content, colours and fonts
+- the **React app** on port 5173 (Vite, with instant reload when you edit a file), and
+- the **Node server** on port 3001, which handles `/api/*`. Vite forwards API calls to it.
 
-**Text.** All copy is plain HTML in each page, so search for the sentence you want to change.
-Sections are marked with comments such as `<!-- ================= WHY INTELYX ================= -->`.
-Items still to fill in are marked `EDIT ME` or `PLACEHOLDER`:
+Fill in the contact form: the email is **printed in the terminal** instead of being sent.
 
-- `about.html`: "Our journey" milestones (`[Year]` placeholders)
-- `contact.html`: business hours
-- Footer of every page: social links (`href="#"`)
-- `privacy.html`, `terms.html`: have them reviewed by a legal adviser and set the "Last updated" date
+### Production mode (what visitors get)
 
-**Header and footer.** There is no build step, so the header and footer are repeated in every
-page between `<!-- ============ HEADER ... -->` and `<!-- ============ FOOTER ... -->`.
-When you change one, make the same change in all seven pages (search and replace works well).
-Only the `aria-current="page"` attribute (the active menu item) differs between pages.
+```bash
+npm run build     # builds the React app into client/dist
+npm start         # serves everything from one server
+```
 
-**Colours.** Edit the CSS variables at the top of `assets/css/style.css`:
+Open **http://localhost:3001**. This is the same server that runs on Lightsail. It also redirects
+old `.html` addresses (`/about.html` → `/about`), which the dev server does not.
+
+### With Docker
+
+```bash
+docker build -t intelyx-web .
+docker run --rm -p 8080:8080 -e ALLOW_LOG_EMAIL=true intelyx-web
+```
+
+Open **http://localhost:8080**. (Without `ALLOW_LOG_EMAIL=true` or SMTP settings, a production
+container refuses to start, so enquiries can never be silently lost.)
+
+### Commands
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Development: React on :5173 + server on :3001, both reload on change |
+| `npm run build` | Production build of the React app (`client/dist`) |
+| `npm start` | Start the Node server (serves the built app and the API) |
+| `npm test` | All tests (server and client) |
+| `npm run signature` | Regenerate the email signature files (section 7) |
+
+To use a different port: `PORT=4000 npm start` (server) or `API_PORT=4000 npm run dev -w client`
+if you moved the server in development.
+
+## 2. Project structure
+
+```
+client/                      React app (Vite)
+  index.html                 HTML shell: fonts, icons, Organization/LocalBusiness structured data
+  public/                    Copied as-is: favicon, robots.txt, sitemap.xml, theme-init.js, assets/img/*
+  scripts/prerender-head.mjs After the build: writes each page's own <title>/description/social tags
+  src/
+    main.jsx, App.jsx        Entry point and the list of pages (routes)
+    pages/                   Home, Products, About, Contact, Legal (Privacy + Terms), NotFound
+    components/              Header, Footer, Layout, EnquiryForm, CtaBand, Icon, Logo, ...
+    data/products.js         Product catalogue (names, features, who it's for)
+    data/seo.js              Page titles, descriptions, structured data
+    data/icons.js            Inline SVG icons
+    lib/validation.js        Form rules, payload and "email us directly" fallback link
+    lib/api.js               Sends the form to /api/enquiry
+    hooks/                   Theme toggle, scroll animations, per-page <title>
+    styles/style.css         All styles; colours and fonts are CSS variables at the top
+  test/                      Client tests
+
+server/                      Node.js server (Express)
+  src/index.js               Start-up: config check, mailer, HTTP server, graceful shutdown
+  src/app.js                 Security headers, redirects, /healthz, /api, serves the React app
+  src/enquiry/               routes.js (POST /api/enquiry), validate.js, emails.js
+  src/mailer.js              Nodemailer: SMTP, or "log to the console" for development
+  src/signature.js           The branded email signature (also used in the acknowledgement email)
+  src/static.js              Serves client/dist as a SPA: clean URLs, caching, 404 handling
+  src/config.js              Environment variables and start-up checks
+  test/                      Server tests (API, validation, SMTP delivery, static serving, config)
+
+scripts/                     check-node.mjs (friendly Node version check), run-tests.mjs (test runner)
+Dockerfile                   Production image (multi-stage: build, production dependencies, runtime)
+.github/workflows/deploy.yml Test on every pull request; deploy on every merge to main
+deploy/                      Script and policies that give GitHub permission to deploy
+brand/                       Logo files (SVG/PNG, light/dark/one-colour) and usage guide
+email-signature/             signature.html and signature.txt
+.env.example                 Every setting, documented (copy to .env for local overrides)
+DEPLOY.md                    AWS Lightsail setup, step by step
+```
+
+## 3. Editing content, colours and logo
+
+**Text.** All copy is in the React files, so search for the sentence you want to change:
+
+| What | Where |
+|---|---|
+| Products, features, "who it's for" | `client/src/data/products.js` (the home page, menus and footer read from it) |
+| Home page text | `client/src/pages/Home.jsx` |
+| About page: mission, values, **milestones (placeholders)** | `client/src/pages/About.jsx` |
+| Contact details, **business hours**, FAQ | `client/src/pages/Contact.jsx` |
+| Privacy Policy and Terms (**placeholder drafts: have a lawyer review them**) | `client/src/pages/Legal.jsx` |
+| Menu, footer, **social links** (`href: '#'`) | `client/src/components/Header.jsx`, `Footer.jsx` |
+| Page titles and descriptions (search results, link previews) | `client/src/data/seo.js` |
+
+Things still to fill in are marked `EDIT ME` or `PLACEHOLDER`. Changes show up instantly in
+`npm run dev`.
+
+**Adding a page.** Create `client/src/pages/Foo.jsx` (call `useSeo('/foo')`), add its route in
+`client/src/App.jsx`, add its title/description to `PAGES` in `client/src/data/seo.js` (this also
+pre-renders its `<head>` and registers the URL with the server), add it to
+`client/public/sitemap.xml`, and link to it from the header or footer.
+
+**Colours.** The look is warm cream paper, near-black ink and a terracotta accent. Edit the CSS
+variables at the top of `client/src/styles/style.css`:
 
 | Variable | Light | Used for |
 |---|---|---|
-| `--color-ink` | `#0b1530` | Deep navy: headings, dark panels |
-| `--color-accent` | `#14b8a6` | Teal accent (decorative: icons, highlights) |
-| `--color-accent-strong` | `#0f766e` | Teal for buttons and links (passes WCAG AA on white) |
-| `--color-bg`, `--color-bg-alt`, `--color-surface` | soft neutrals | Page and card backgrounds |
-| `--color-text`, `--color-muted` | `#26304a`, `#5a6480` | Body and secondary text |
+| `--color-bg`, `--color-bg-alt`, `--color-surface` | `#faf9f5`, `#f0eee6`, `#ffffff` | Page, alternate section and card backgrounds |
+| `--color-heading`, `--color-text`, `--color-muted` | `#141413`, `#3d3d3a`, `#5e5d59` | Headlines, body and secondary text |
+| `--color-primary`, `--color-on-primary` | `#141413`, `#faf9f5` | Main buttons (a light button in dark mode) |
+| `--color-secondary-bg` | `#efede4` | Secondary buttons |
+| `--color-accent` | `#d97757` | Terracotta for decoration: icons, chart, highlights |
+| `--color-accent-strong` | `#a94727` | Terracotta for text and links (passes WCAG AA on every cream surface) |
+| `--color-band` | `#141413` | Dark panels: call-to-action band, mission card, industry tiles |
 
-Dark-mode values are defined twice below that block (once for the OS preference, once for
-the manual toggle); change both. Keep text at a contrast ratio of at least 4.5:1.
+Dark-mode values are defined twice below that block (once for the OS preference, once for the
+manual toggle): change both, and keep text at a contrast ratio of at least 4.5:1. The logo colours
+are separate variables (`--logo-*`).
 
-**Fonts.** Plus Jakarta Sans (headings) and Inter (body) load from Google Fonts. The URL is in
-each page's `<head>` (the `data-fonts` link and its `<noscript>` copy); the font names are the
-`--font-heading` and `--font-body` variables.
+**Fonts.** Headlines and the "Intelyx" wordmark use **Newsreader** (a serif); body text, buttons,
+menus and labels use **Inter**. Both load from Google Fonts (the link is in `client/index.html`);
+the names are the `--font-heading` and `--font-body` variables.
 
-**Logo.** Standalone logo files (full logo, dark-background, one-colour and icon-only
-versions, as SVG and transparent PNG) are in [`/brand`](brand/README.md), with colours and
-usage rules. On the website, the mark is inline SVG in the header and footer (`.brand-mark`)
-so its colours can follow the light/dark theme via `--logo-tile`, `--logo-glyph` and
-`--logo-dot`; it also appears in `favicon.svg` and `assets/img/logo.svg`.
+**Logo.** Ready-to-use files and rules are in [`brand/`](brand/README.md). On the website the mark
+is the `LogoMark` component (`client/src/components/Logo.jsx`), so it follows the theme colours.
 
-**Cache busting (important).** CSS and JS are cached for a year and referenced as
-`style.css?v=1.0.0`. **After changing any CSS or JS file, bump the version** in every page
-(search and replace `?v=1.0.0` → `?v=1.0.1`), or visitors may keep the old file.
+## 4. How the enquiry form works
 
-**Sitemap.** When you add a page, add it to `sitemap.xml` and give it its own `<title>`,
-meta description, canonical URL and Open Graph tags (copy the `<head>` of an existing page).
-
-## 4. Setting the API endpoint (config.js)
-
-After deploying the backend (section 6), copy the `EnquiryApiUrl` output into
-`assets/js/config.js`:
-
-```js
-enquiryApiUrl: 'https://abc123xyz.execute-api.ap-south-1.amazonaws.com/enquiry',
+```
+Browser (React form) ── POST /api/enquiry (JSON) ──► Node server ──► SMTP (Amazon SES) ──► office@intelyx.co.in
 ```
 
-Then bump `?v=` (section 3) and redeploy the site. Until it is set, the form shows a friendly
-error with an "email us directly" link that pre-fills the subject and body.
+- **Pre-fill:** `/contact?product=hospitals-erp&type=demo#enquiry` selects the product and
+  "Request a Demo". Product ids: `schools-erp`, `hospitals-erp`, `accounting`, `service-booking`, `other`.
+- **In the browser:** friendly inline validation, a character counter (2000 max), demo date/time
+  fields only for demo requests, a spinner while sending, and a thank-you message on success. If
+  sending fails, an "email us directly" link appears with the subject and body already filled in.
+- **On the server (`server/src/enquiry/`):** every field is validated and sanitised again (HTML
+  stripped, lengths capped, Indian mobile format, email format), and the visitor's email becomes
+  the **Reply-To**, so the team can just hit Reply.
+- **The email:** subject `[Demo Request] Hospitals ERP – Name, Organisation` or
+  `[Enquiry] Product – Name`; an HTML and plain-text table of every field, the time (IST) and the
+  page address. With `SEND_ACK=true` the visitor also gets a branded acknowledgement ending in the
+  company signature.
+- **Spam protection:** a hidden honeypot field, a minimum fill time (a form submitted within 1.5
+  seconds is quietly discarded), and a limit of 5 submissions per visitor per minute.
+- **Privacy:** logs contain only the enquiry type, product and the email *domain*, never names,
+  phone numbers or messages.
 
-`config.js` is public. Never put keys or secrets in it; the backend needs none from the browser.
+## 5. Configuration (environment variables)
 
-**How the form works:**
+All optional locally. Copy `.env.example` to `.env` to try settings. In production the deploy
+workflow sets them (see [DEPLOY.md](DEPLOY.md), step 3b).
 
-- `contact.html?product=hospitals-erp&type=demo#enquiry` pre-selects the product and "Request a Demo".
-  Product IDs: `schools-erp`, `hospitals-erp`, `accounting`, `service-booking`, `other`.
-- The demo date and time fields appear only for "Request a Demo". The message is required for
-  general enquiries and optional for demos (max 2000 characters, with a live counter).
-- Spam protection: a hidden honeypot field, plus submissions faster than 1.5 seconds are
-  quietly accepted and discarded.
-
-## 5. Amazon SES setup (ap-south-1)
-
-All SES, API Gateway and Lambda resources live in **ap-south-1 (Mumbai)**.
-
-### 5.1 Verify the domain (DKIM)
-
-```bash
-aws sesv2 create-email-identity --email-identity intelyx.co.in --region ap-south-1
-```
-
-The response lists three DKIM tokens. Add three **CNAME** records in DNS:
-
-| Name | Value |
-|---|---|
-| `<token1>._domainkey.intelyx.co.in` | `<token1>.dkim.amazonses.com` |
-| `<token2>._domainkey.intelyx.co.in` | `<token2>.dkim.amazonses.com` |
-| `<token3>._domainkey.intelyx.co.in` | `<token3>.dkim.amazonses.com` |
-
-(The same records are shown in SES console → Identities → intelyx.co.in → DKIM.)
-
-### 5.2 SPF via a custom MAIL FROM domain
-
-Using a subdomain keeps SES separate from whatever already sends mail for `intelyx.co.in`
-(Google Workspace, Zoho, etc.), so you never need a second root SPF record:
-
-```bash
-aws sesv2 put-email-identity-mail-from-attributes --region ap-south-1 \
-  --email-identity intelyx.co.in --mail-from-domain mail.intelyx.co.in \
-  --behavior-on-mx-failure USE_DEFAULT_VALUE
-```
-
-| Type | Name | Value |
+| Variable | Default | Meaning |
 |---|---|---|
-| MX | `mail.intelyx.co.in` | `10 feedback-smtp.ap-south-1.amazonses.com` |
-| TXT | `mail.intelyx.co.in` | `"v=spf1 include:amazonses.com ~all"` |
+| `PORT` | `3001` (`8080` in the container) | Server port |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` | empty | Email server. **Empty host = print emails to the console.** |
+| `SMTP_PORT` | `587` | Port (`465` uses SSL automatically) |
+| `TO_EMAIL` | `office@intelyx.co.in` | Where enquiries are delivered |
+| `FROM_EMAIL`, `FROM_NAME` | `no-reply@intelyx.co.in`, `Intelyx Website` | Sender (must be verified with your email service) |
+| `SEND_ACK` | `false` | `true` also emails a thank-you to the visitor |
+| `EMAIL_TRANSPORT` | automatic | Force `smtp` or `log` |
+| `ALLOW_LOG_EMAIL` | `false` | Lets a **production** server run without SMTP (emails only logged) |
+| `FORCE_HTTPS`, `APEX_HOST`, `CANONICAL_HOST` | off | Production redirects: HTTP→HTTPS and `intelyx.co.in`→`www` |
+| `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS` | `5`, `60000` | Enquiries per visitor per window |
+| `NODE_ENV` | `development` | `production` enables strict start-up checks (set by the Docker image) |
 
-### 5.3 DMARC
+In production the server **refuses to start** without working email settings, so a misconfigured
+deploy fails its health check and the previous version keeps serving, instead of dropping enquiries.
 
-| Type | Name | Value |
-|---|---|---|
-| TXT | `_dmarc.intelyx.co.in` | `"v=DMARC1; p=none; rua=mailto:office@intelyx.co.in; fo=1"` |
-
-If a DMARC record already exists, keep only one. Start with `p=none`; after a few weeks of
-clean reports move to `p=quarantine`.
-
-### 5.4 Verify the recipient address
-
-```bash
-aws sesv2 create-email-identity --email-identity office@intelyx.co.in --region ap-south-1
-```
-
-Click the link in the verification email. While SES is in the **sandbox** it can only send to
-verified addresses, which is enough for the enquiry emails to `office@intelyx.co.in`.
-
-### 5.5 Request production access
-
-Needed for acknowledgement emails to customers (`SendAck=true`). In the console go to
-SES → Account dashboard → **Request production access**, or:
+## 6. Tests
 
 ```bash
-aws sesv2 put-account-details --region ap-south-1 \
-  --production-access-enabled --mail-type TRANSACTIONAL \
-  --website-url https://www.intelyx.co.in --contact-language EN \
-  --additional-contact-email-addresses office@intelyx.co.in \
-  --use-case-description "Transactional email only: the website enquiry form sends each submission to office@intelyx.co.in and, optionally, one acknowledgement to the person who submitted it. No marketing email. Bounces and complaints are monitored in the SES console."
+npm test          # server (33 tests) + client (11 tests)
 ```
 
-AWS usually replies within 24 hours.
+- **Server:** validation and sanitising, email content, the API (success, spam traps, errors, rate
+  limit), real SMTP delivery against an in-process mail server (including header-injection
+  attempts and rejected logins), page serving and redirects, and start-up configuration checks.
+- **Client:** form rules, the payload and fallback link, product/icon data and page titles.
 
-## 6. Deploy the enquiry backend (SAM)
+Pull requests also build the Docker image and smoke-test it (GitHub Actions).
 
-Prerequisites: [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html),
-[AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
-and Node.js 22 or later (to run the tests locally).
+## 7. Email signature
 
-```bash
-cd infra
-sam build && sam deploy --guided
-```
+Files: `email-signature/signature.html` (rich) and `signature.txt` (plain). It is table-based
+with inline styles, Arial/Helvetica, at most 500px wide, with no JavaScript or background images,
+and a **"Request a Demo" button made from a coloured table cell**, so it still shows when images are
+blocked. The logo is `https://www.intelyx.co.in/assets/img/logo-email.png` (a 2x PNG on a white
+rounded background, readable in dark mode), so **deploy the site before using the signature**.
 
-Accept the defaults from `samconfig.toml` (stack `intelyx-enquiry-api`, region `ap-south-1`)
-or change them. Parameters:
+The same block ends the acknowledgement email. To change it, edit `server/src/signature.js` and run
+`npm run signature`. Personalise by replacing `[Full Name]` and `[Designation]` in the HTML.
 
-| Parameter | Default | Lambda env var |
-|---|---|---|
-| `ToEmail` | `office@intelyx.co.in` | `TO_EMAIL` |
-| `FromEmail` | `no-reply@intelyx.co.in` | `FROM_EMAIL` |
-| `FromName` | `Intelyx Website` | `FROM_NAME` |
-| `SesDomain` | `intelyx.co.in` | (IAM scope) |
-| `AllowedOrigins` | `https://www.intelyx.co.in,https://intelyx.co.in,http://localhost:8080,...` | `ALLOWED_ORIGINS` |
-| `SendAck` | `false` | `SEND_ACK` |
-| `NodeRuntime` | `nodejs24.x` | (runtime) |
+**Gmail:** open `signature.html` in Chrome, select all, copy → Gmail ⚙ → **See all settings** →
+**General** → **Signature** → **Create new**, paste, set it as default, **Save changes**.
+**Outlook (new Outlook / web):** copy as above → ⚙ Settings → **Accounts → Signatures → New
+signature**, paste, set defaults. **Outlook (classic Windows):** **File → Options → Mail →
+Signatures… → New**, paste, set defaults.
+**Apple Mail (Mac):** **Mail → Settings → Signatures**, **+**, untick *Always match my default
+message font*, paste the copied signature (copy it from Safari). **iPhone/iPad:** Settings → Mail →
+Signature, use the plain-text version.
 
-> **Node.js runtime note.** The function runs on `nodejs24.x` by default; `nodejs22.x` also
-> works unchanged. `nodejs20.x` is still selectable but not recommended: AWS deprecated it on
-> 30 April 2026, so it no longer receives security patches, and new functions on it can't be
-> created after 1 February 2027.
+Check it in Gmail (web and mobile), Outlook (desktop and web) and Apple Mail, in light and dark
+mode, before rolling it out. Outlook desktop ignores rounded corners (the button is square there).
 
-What the stack creates:
+## 8. Testing checklist before launch
 
-- **HTTP API** `POST /enquiry` with CORS limited to `AllowedOrigins` and throttling of
-  5 requests/second (burst 10). Access logs contain no IP addresses or form data.
-- **Lambda** that validates and sanitises every field (required fields, email and Indian
-  mobile formats, length limits, HTML stripped), then sends an HTML + plain-text email with
-  `Reply-To` set to the visitor, so you can reply directly. Subjects look like
-  `[Demo Request] Hospitals ERP – Priya Sharma, Green Valley Hospital` or
-  `[Enquiry] Accounting Software – Priya Sharma`. It returns `{ "ok": true }` or
-  `{ "ok": false, "error": "..." }` with 400/403/405/413/415/500 as appropriate.
-- **IAM role** allowed only `ses:SendEmail` / `ses:SendRawEmail`, only on the verified
-  identity, and only with `FromEmail` as the sender.
-- **Log groups** (30-day retention). Logs record the request ID, enquiry type, product and the
-  email *domain*, never names, phone numbers or messages.
+**Form**
+- [ ] Empty submit shows an inline error under each required field and focuses the first.
+- [ ] Bad email (`name@`) and phone (`12345`) show friendly errors; `+91 98765-43210` is accepted.
+- [ ] "Request a Demo" shows date/time fields and makes the message optional.
+- [ ] `/contact?product=service-booking&type=demo#enquiry` pre-selects both.
+- [ ] A real submission arrives at `office@intelyx.co.in`; **Reply** goes to the visitor; the email
+      passes SPF, DKIM and DMARC (Gmail → ⋮ → *Show original*).
+- [ ] With `SEND_ACK=true` (after SES production access) the visitor gets the acknowledgement.
 
-When the deploy finishes, copy the **`EnquiryApiUrl`** output into `assets/js/config.js`
-(section 4) and the **`ApiOrigin`** output into the hosting stack (section 7).
+**Layout and accessibility** (360, 768, 1280, 1920 px)
+- [ ] No sideways scrolling. The mobile menu opens and closes (X button, Esc, choosing a link).
+- [ ] The Products dropdown works with the mouse and the keyboard (Enter, Tab, Esc).
+- [ ] Light/dark toggle works and survives a reload. Focus outlines are visible everywhere.
+- [ ] Animations stop when the OS "reduce motion" setting is on.
 
-Once testing is done, remove the `localhost` entries from `AllowedOrigins` and redeploy.
-
-**Test the API from a terminal:**
-
-```bash
-curl -i -X POST "https://<api-id>.execute-api.ap-south-1.amazonaws.com/enquiry" \
-  -H "Origin: https://www.intelyx.co.in" -H "Content-Type: application/json" \
-  -d '{"enquiryType":"general","name":"Test User","email":"you@example.com","phone":"9876543210",
-       "product":"accounting","message":"Testing the enquiry form.","consent":true,
-       "pageUrl":"https://www.intelyx.co.in/contact.html"}'
-```
-
-**Run the unit tests** (no AWS calls):
-
-```bash
-cd backend/enquiry-lambda && npm install && npm test
-```
-
-**Logs:** CloudWatch → Log groups → `/aws/lambda/<EnquiryFunctionName>`, or
-`sam logs --stack-name intelyx-enquiry-api --region ap-south-1 --tail`.
-
-**Acknowledgement emails.** After SES production access is granted, redeploy with
-`SendAck=true` to send each visitor a branded "we've received your enquiry" email that ends
-with the company signature. A failed acknowledgement is logged but never fails the enquiry.
-
-## 7. Hosting: S3 + CloudFront, custom domain and SSL
-
-`infra/hosting.yaml` creates:
-
-- **S3 bucket** (`intelyx-site-<account-id>`): private, Block Public Access on, versioning on,
-  encrypted, old versions expire after 90 days. Only CloudFront can read it (Origin Access Control).
-- **ACM certificate** for `www.intelyx.co.in` and `intelyx.co.in` with DNS validation.
-- **CloudFront distribution**: HTTPS only (HTTP redirects to HTTPS), HTTP/2 and HTTP/3,
-  compression, `index.html` as the default root object, and `/404.html` for missing pages.
-- **CloudFront Function**: redirects `intelyx.co.in` → `https://www.intelyx.co.in` (301),
-  `/index.html` → `/`, and serves clean URLs (`/about` → `/about.html`).
-- **Response headers policy**: HSTS (2 years, preload), `X-Content-Type-Options`,
-  `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy` and a Content-Security-Policy
-  allowing only this site, Google Fonts, the Google Maps embed and your API.
-- **Cache policies**: `/assets/*` cached long (30 days default, up to 1 year, keyed on `?v=`);
-  HTML cached for 5 minutes.
-- **Route 53** A/AAAA alias records (if you use Route 53).
-- An optional **GitHub Actions deploy role** (section 9).
-
-> **Deploy this stack in `us-east-1`.** CloudFront only accepts ACM certificates from that region.
-
-### Option A: DNS in Route 53 (recommended)
-
-If you don't have a hosted zone yet, create one and point your registrar's name servers to it:
-
-```bash
-aws route53 create-hosted-zone --name intelyx.co.in --caller-reference "$(date +%s)"
-# Copy the 4 NS records from the output into your domain registrar's name-server settings.
-```
-
-Then deploy (the certificate is validated automatically, which usually takes 5 to 30 minutes):
-
-```bash
-aws cloudformation deploy --region us-east-1 \
-  --stack-name intelyx-website \
-  --template-file infra/hosting.yaml \
-  --capabilities CAPABILITY_IAM \
-  --parameter-overrides \
-      DomainName=intelyx.co.in \
-      HostedZoneId=Z0123456789ABCDEFGHIJ \
-      ApiOrigin=https://<api-id>.execute-api.ap-south-1.amazonaws.com
-```
-
-Move the SES records from section 5 into the same hosted zone.
-
-### Option B: DNS stays with your current registrar
-
-Deploy with `HostedZoneId=""` (leave it out). The stack pauses at the certificate step:
-
-1. Open **ACM (us-east-1) → Certificates** (or the CloudFormation **Events** tab) and copy
-   the two validation **CNAME** records. Add them at your registrar. The stack continues
-   automatically once they are found.
-2. When the stack completes, take the **`DistributionDomainName`** output (e.g.
-   `d1234abcd.cloudfront.net`) and add:
-
-| Type | Name | Value |
-|---|---|---|
-| CNAME | `www` | `d1234abcd.cloudfront.net` |
-| ALIAS / ANAME / CNAME-flattening | `@` (intelyx.co.in) | `d1234abcd.cloudfront.net` |
-
-Many registrars don't support ALIAS records at the apex. If yours doesn't, either move DNS to
-Route 53 (Option A) or use the registrar's "URL forwarding" to send `intelyx.co.in` to
-`https://www.intelyx.co.in`.
-
-Leave the ACM validation CNAMEs in place permanently so the certificate renews automatically.
-
-### Stack outputs
-
-`BucketName`, `DistributionId`, `DistributionDomainName`, `CertificateArn` and (optional)
-`GitHubDeployRoleArn`. Show them with:
-
-```bash
-aws cloudformation describe-stacks --region us-east-1 --stack-name intelyx-website \
-  --query "Stacks[0].Outputs" --output table
-```
-
-> If the API URL changes, update `ApiOrigin` in this stack, or the browser will block the form
-> (Content-Security-Policy `connect-src`). The default allows any API in ap-south-1.
-
-## 8. Deploy the website and invalidate the cache
-
-**Recommended:** use the script, which uploads only website files and sets cache headers
-(1 year for versioned CSS/JS, 30 days for images, 5 minutes for HTML):
-
-```bash
-./scripts/deploy-site.sh <BucketName> <DistributionId>
-```
-
-**Manual equivalent:**
-
-```bash
-aws s3 sync ./ s3://<BucketName> --delete \
-  --exclude ".git/*" --exclude ".github/*" --exclude "backend/*" --exclude "infra/*" \
-  --exclude "scripts/*" --exclude "email-signature/*" --exclude "brand/*" \
-  --exclude "README.md" --exclude ".gitignore"
-
-aws cloudfront create-invalidation --distribution-id <DistributionId> --paths "/*"
-```
-
-Invalidations take a minute or two. The first 1,000 invalidation paths each month are free,
-and `/*` counts as one path.
-
-## 9. Optional: deploy from GitHub Actions (OIDC)
-
-`.github/workflows/deploy.yml` deploys the site on every push to `main` with short-lived AWS
-credentials (no access keys stored in GitHub).
-
-1. Redeploy the hosting stack with your repository:
-   ```bash
-   aws cloudformation deploy --region us-east-1 --stack-name intelyx-website \
-     --template-file infra/hosting.yaml --capabilities CAPABILITY_IAM \
-     --parameter-overrides GitHubRepository=satheeshab/intelyx-website GitHubBranch=main
-   ```
-   (Use `CreateGitHubOidcProvider=false` if your account already has the
-   `token.actions.githubusercontent.com` identity provider.)
-2. In GitHub: **Settings → Secrets and variables → Actions → Variables**, add:
-   - `AWS_DEPLOY_ROLE_ARN`: the `GitHubDeployRoleArn` output
-   - `S3_BUCKET`: the `BucketName` output
-   - `CLOUDFRONT_DISTRIBUTION_ID`: the `DistributionId` output
-3. Push to `main`, or run the workflow by hand from the **Actions** tab.
-
-The role can only write to this bucket and invalidate this distribution. The workflow is
-skipped until `AWS_DEPLOY_ROLE_ARN` is set.
-
-## 10. Email signature
-
-Files: `email-signature/signature.html` (rich) and `email-signature/signature.txt` (plain).
-The block is table-based with inline styles, Arial/Helvetica, max 500px wide, no JavaScript and
-no background images. The "Request a Demo" button is a coloured table cell, so it still shows
-when images are blocked. The logo is `https://www.intelyx.co.in/assets/img/logo-email.png`
-(a 2x PNG on a white rounded background, so it stays readable when mail apps use dark mode),
-so **deploy the website before using the signature**.
-
-The same block ends the acknowledgement email. It is generated from
-`backend/enquiry-lambda/signature.mjs`. To change it, edit that file and run
-`cd backend/enquiry-lambda && npm run signature` to regenerate both signature files.
-
-**Personalise:** replace `[Full Name]` and `[Designation]` in `signature.html` (and `.txt`).
-
-**Gmail (web; settings apply to the mobile app too)**
-1. Open `signature.html` in Chrome, press Ctrl/Cmd + A, then Ctrl/Cmd + C.
-2. Gmail → ⚙ → **See all settings** → **General** → **Signature** → **Create new**.
-3. Paste, set it as the default for new emails and replies, then **Save changes** at the bottom.
-
-**Outlook (new Outlook for Windows and Outlook on the web)**
-1. Open `signature.html` in a browser, select all and copy.
-2. ⚙ Settings → **Accounts** → **Signatures** → **New signature**, paste, then choose it as the default.
-
-**Outlook (classic desktop for Windows)**
-1. Copy as above.
-2. **File → Options → Mail → Signatures… → New**, paste into the editor, set the defaults, and click **OK**.
-
-**Apple Mail (macOS)**
-1. **Mail → Settings → Signatures**, select the account and click **+**.
-2. **Uncheck** "Always match my default message font".
-3. Open `signature.html` in **Safari**, select all, copy, and paste into the signature box.
-   (If it looks plain, close Mail, paste again and reopen.)
-
-**Apple Mail (iPhone/iPad):** Settings → Mail → Signature. iOS keeps only basic formatting,
-so use `signature.txt` there.
-
-**Testing.** The signature was checked in a browser in light mode and a simulated dark mode.
-Before rolling it out, send test emails to Gmail (web and mobile), Outlook (desktop and web)
-and Apple Mail with dark mode both on and off, or use a preview service such as Litmus or
-Email on Acid. Known client behaviour: Outlook desktop ignores rounded corners (the button is
-square there) and some clients recolour text in dark mode; the colours were chosen to stay
-readable either way.
-
-## 11. Testing checklist
-
-**Form validation** (`/contact.html`)
-- [ ] Submitting the empty form shows an inline error under each required field and focuses the first one.
-- [ ] Invalid email (`name@`) and phone (`12345`, `5876543210`) show friendly errors; `+91 98765-43210` is accepted.
-- [ ] "Request a Demo" shows date and time fields, makes the message optional and changes the button text.
-- [ ] The counter updates and stops at 2000 characters.
-- [ ] `contact.html?product=service-booking&type=demo#enquiry` pre-selects the product and demo type.
-- [ ] Every "Request a Demo" button on `products.html` pre-fills the right product.
-- [ ] While sending, the button is disabled and shows a spinner.
-- [ ] Success replaces the form with "Thanks, <first name>! Our team will get back to you within one business day."
-- [ ] Failure (e.g. a wrong URL in `config.js`) shows the error with an "email us directly" link whose subject and body are pre-filled.
-- [ ] The form works with the keyboard only (Tab, Space/arrows on the toggle, Enter to submit).
-
-**Email delivery**
-- [ ] A general enquiry and a demo request each arrive at `office@intelyx.co.in` with the expected subject.
-- [ ] Clicking **Reply** addresses the visitor.
-- [ ] The email shows every field, the submission time (IST) and the page URL.
-- [ ] The message passes SPF, DKIM and DMARC (Gmail: ⋮ → *Show original*).
-- [ ] With `SendAck=true` (after production access), the visitor receives the acknowledgement with the signature.
-- [ ] A submission with the hidden `website` field filled returns `200` but sends no email.
-- [ ] CloudWatch logs contain no names, phone numbers or messages.
-
-**Layout and accessibility** (360px, 768px, 1280px, 1920px)
-- [ ] No horizontal scrolling; the hamburger menu opens, and closes with the X button or Esc.
-- [ ] The Products dropdown opens on hover and with Enter/Space on the arrow button; Esc closes it.
-- [ ] The theme toggle switches light/dark and the choice survives a reload.
-- [ ] The active page is highlighted in the menu.
-- [ ] Focus outlines are visible on every link, button and field.
-- [ ] Animations are off when the OS "reduce motion" setting is on.
-
-**Hosting**
-- [ ] `http://intelyx.co.in/about` ends at `https://www.intelyx.co.in/about` and shows the About page.
-- [ ] `https://www.intelyx.co.in/does-not-exist` shows the 404 page with status 404.
-- [ ] Response headers include `strict-transport-security` and `content-security-policy`
-      (`curl -sI https://www.intelyx.co.in`), and the browser console shows no CSP errors.
-- [ ] The S3 bucket URL itself returns *Access Denied*.
-
-**Lighthouse** (Chrome DevTools → Lighthouse, mobile and desktop)
-- [ ] Performance, Accessibility, Best Practices and SEO all 90+ on every page.
-  Pre-launch runs against a local server with production-like headers scored 100 in all four
-  categories on the home, products, about and contact pages. The 404 page scores lower on SEO
-  on purpose, because it is `noindex`.
-- [ ] Validate structured data at <https://search.google.com/test/rich-results> and
-      social previews at <https://www.opengraph.xyz/>.
+**Production**
+- [ ] `https://www.intelyx.co.in` shows a padlock; `http://` redirects to `https://`.
+- [ ] `https://www.intelyx.co.in/does-not-exist` shows the 404 page (status 404).
+- [ ] `curl -sI https://www.intelyx.co.in` shows `strict-transport-security` and `content-security-policy`.
+- [ ] Lighthouse (Chrome DevTools, mobile and desktop): all four scores 90+.
+- [ ] Share a page link in WhatsApp/LinkedIn and check the title, description and image.
 - [ ] Submit `https://www.intelyx.co.in/sitemap.xml` in Google Search Console.
 
-## 12. Troubleshooting
+## 9. Troubleshooting
 
-| Symptom | Likely cause / fix |
+| Symptom | Fix |
 |---|---|
-| Form says "Our online form is not available right now" | `enquiryApiUrl` in `config.js` still has the placeholder. |
-| Browser console: *blocked by CORS policy* | The page's origin isn't in `AllowedOrigins`. Add it (exact scheme, host and port) and redeploy the SAM stack. |
-| Browser console: *Refused to connect … Content Security Policy* | `ApiOrigin` in the hosting stack doesn't match the API URL. |
-| API returns 500, logs show `MessageRejected: Email address is not verified` | SES sandbox: verify the recipient, or request production access. |
-| API returns 403 | The request had no `Origin` header, or one not in `ALLOWED_ORIGINS`. |
-| API returns 429 | Throttling (5 req/s, burst 10) is working; retry shortly. |
-| Old CSS/JS after deploying | Bump `?v=` in the HTML and run an invalidation. |
-| Certificate stuck in *Pending validation* | The ACM CNAME records are missing or wrong at your DNS provider. |
-| `/about` shows 404 | The CloudFront Function isn't associated, or `about.html` wasn't uploaded. |
+| `This project needs Node.js 20.19 or newer` (or a crash mentioning `styleText` or `node:util`) | Your Node.js is too old. Install the current LTS from [nodejs.org](https://nodejs.org), open a **new** terminal, check `node --version`, then run `npm install` and the command again. |
+| `memory allocation of … bytes failed` or a crash when starting `npm run dev` on Windows | A crash inside the build tool's native code. The project uses Vite 7 (not the newer Rust-based Vite 8) for this reason. After pulling the update, delete the `node_modules` folders (root, `client` and `server`) and run `npm install` again. If it still happens, close memory-hungry programs, exclude the project folder from your antivirus scanner, and check that Windows has free disk space for its page file. |
+| `npm run dev` says port 3001/5173 is in use | Another copy is running. Close it, or set `PORT=3002` (and `API_PORT=3002` for the client). |
+| Form says "email us directly" in development | The Node server isn't running (use `npm run dev`, not just Vite). |
+| Opened `http://localhost:3001` and see "website has not been built yet" | Run `npm run build` first, or use http://localhost:5173 while developing. |
+| `Configuration error: Refusing to start in production…` | Production mode needs `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (or `ALLOW_LOG_EMAIL=true` to test). |
+| Real emails don't arrive | Check the server log for `enquiry_send_failed`: unverified sender/domain in SES, SES sandbox, or wrong SMTP credentials. |
+| Docker build fails on `npm ci` behind a company proxy | Pass the proxy/certificate settings your network requires (`--build-arg` / `--network=host`). |
