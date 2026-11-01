@@ -5,6 +5,7 @@
       "name": "intelyx-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
+      "env": { "API_PORT": "3001" },
       "port": 5173
     }
   ]

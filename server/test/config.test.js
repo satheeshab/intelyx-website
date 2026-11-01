@@ -17,6 +17,12 @@ test('SMTP_HOST switches to the smtp transport and requires credentials', () => 
   assert.equal(loadConfig({ SMTP_HOST: 'h', SMTP_PORT: '465' }).mail.secure, true);
 });
 
+test('the API port comes from API_PORT, then PORT, then 3001', () => {
+  assert.equal(loadConfig({}).port, 3001);
+  assert.equal(loadConfig({ PORT: '8080' }).port, 8080);
+  assert.equal(loadConfig({ PORT: '5173', API_PORT: '3001' }).port, 3001);
+});
+
 test('production refuses to start without working email settings', () => {
   assert.throws(() => assertConfig(loadConfig({ NODE_ENV: 'production' })), /Refusing to start in production/);
   assert.doesNotThrow(() => assertConfig(loadConfig({ NODE_ENV: 'production', ALLOW_LOG_EMAIL: 'true' })));
