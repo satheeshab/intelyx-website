@@ -283,7 +283,7 @@ On an Apple Silicon Mac add `--platform linux/amd64` to `docker build`, because 
 | What you see | What to do |
 |---|---|
 | Workflow says **"Deploy skipped"** | The `AWS_DEPLOY_ROLE_ARN` variable is missing (step 3b). |
-| **"Not authorized to perform sts:AssumeRoleWithWebIdentity"** | The `production` environment doesn't exist, doesn't allow `main`, or the repository name given to `create-github-role.sh` differs from the actual `owner/repo`. Re-run the script with the exact name. |
+| **"Not authorized to perform sts:AssumeRoleWithWebIdentity"** | Re-run `./deploy/create-github-role.sh satheeshab/intelyx-website` in CloudShell (in the AWS account that owns the Lightsail service): it adds the missing `sts.amazonaws.com` audience to a GitHub provider created by another project, and resets the role's trust. Then check that the ARN it prints is exactly the `AWS_DEPLOY_ROLE_ARN` variable, and that the `production` environment allows `main`. The failed run's **Explain a failed AWS sign-in** step shows what GitHub sent to AWS. |
 | **AccessDenied** for a `lightsail:` action | Add the named action to the `deploy-to-lightsail` policy of the `intelyx-github-deploy` role (`deploy/github-deploy-policy.json` lists the current ones). |
 | **"Container service … is 'DISABLED' / 'DEPLOYING'"** | Wait until it is `READY` or `RUNNING` (step 2). |
 | Workflow error **"Add the SMTP_USER and SMTP_PASS secrets"** | Step 3b, secrets. |

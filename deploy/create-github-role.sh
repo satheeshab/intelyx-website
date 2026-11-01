@@ -30,6 +30,14 @@ echo "→ AWS account ${ACCOUNT}, region ${REGION}"
 # 1. GitHub as a trusted identity provider (an account can only have one)
 if aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$PROVIDER" >/dev/null 2>&1; then
   echo "→ GitHub sign-in provider already exists: reusing it"
+  # A provider created by another project may not accept the audience the AWS action uses.
+  # Without it, AWS answers "Not authorized to perform sts:AssumeRoleWithWebIdentity".
+  if ! aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$PROVIDER" \
+       --query 'ClientIDList' --output text | tr '\t' '\n' | grep -qx 'sts.amazonaws.com'; then
+    aws iam add-client-id-to-open-id-connect-provider \
+      --open-id-connect-provider-arn "$PROVIDER" --client-id sts.amazonaws.com
+    echo "→ Added the audience sts.amazonaws.com to the provider"
+  fi
 else
   aws iam create-open-id-connect-provider \
     --url https://token.actions.githubusercontent.com \
@@ -60,4 +68,7 @@ echo
 echo "✓ Done. Add this as the GitHub variable AWS_DEPLOY_ROLE_ARN:"
 echo
 echo "    ${ARN}"
+echo
+echo "  The role trusts only:  repo:${REPO}:environment:production"
+echo "  Provider audiences:    $(aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$PROVIDER" --query 'ClientIDList' --output text)"
 echo
