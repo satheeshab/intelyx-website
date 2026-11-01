@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ICONS } from '../src/data/icons.js';
 import { PRODUCT_DETAILS, PRODUCTS } from '../src/data/products.js';
-import { NOT_FOUND, PAGES } from '../src/data/seo.js';
+import { PRODUCT_PAGES } from '../src/data/productPages.js';
+import { NOT_FOUND, PAGES, productPath } from '../src/data/seo.js';
 import {
   FIELD_ORDER, buildMailto, buildPayload, normalisePhone, validateAll, validateField,
 } from '../src/lib/validation.js';
@@ -90,4 +91,22 @@ test('every page has a unique title and a description of a sensible length', () 
     assert.ok(!titles.has(page.title), `duplicate title ${route}`);
     titles.add(page.title);
   }
+});
+
+test('every product has its own page with SEO, three screens and FAQs', () => {
+  for (const p of PRODUCTS) {
+    const page = PRODUCT_PAGES[p.id];
+    assert.ok(page, `page content for ${p.id}`);
+    assert.ok(PAGES[productPath(p.id)], `SEO entry for ${p.id}`);
+    assert.equal(page.screens.length, 3, p.id);
+    for (const s of page.screens) {
+      assert.ok(s.title && s.caption, `screen text in ${p.id}`);
+      assert.ok(s.image || s.kpis || s.rows || s.chart, `screen content in ${p.id}`);
+      if (s.image) assert.ok(s.image.src && s.image.alt, `screenshot needs src and alt in ${p.id}`);
+    }
+    assert.ok(page.faqs.length >= 4, `at least 4 FAQs for ${p.id}`);
+    const faq = PAGES[productPath(p.id)].jsonLd['@graph'].find((n) => n['@type'] === 'FAQPage');
+    assert.equal(faq.mainEntity.length, page.faqs.length, `FAQ structured data for ${p.id}`);
+  }
+  assert.deepEqual(Object.keys(PRODUCT_PAGES).sort(), PRODUCTS.map((p) => p.id).sort());
 });

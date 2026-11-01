@@ -16,8 +16,13 @@ export function Brand() {
   return (
     <Link className="brand" to="/" aria-label="Intelyx home">
       <LogoMark />
-      <span className="brand-name">
-        Intely<span>x</span>
+      <span className="brand-text">
+        <span className="brand-name">
+          Intely<span>x</span>
+        </span>
+        <span className="brand-tagline" aria-hidden="true">
+          Intelligence<i>|</i>Experience
+        </span>
       </span>
     </Link>
   );

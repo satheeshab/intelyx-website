@@ -6,8 +6,8 @@ server, which also sends the enquiry-form emails. It runs as one container on AW
 
 | | |
 |---|---|
-| **Front end** | React 19, React Router, Vite. Plain CSS: warm cream theme with serif headlines, plus a dark mode. |
-| **Back end** | Node.js 24 (works on 22.12+), Express 5, Nodemailer. |
+| **Front end** | React 19, React Router, built with webpack and Babel (plain JavaScript tools, no native binaries). Plain CSS: warm cream theme with serif headlines, plus a dark mode. |
+| **Back end** | Node.js 24 (works on 20.9+), Express 5, Nodemailer. |
 | **Email** | Amazon SES over SMTP (any SMTP service works). In development, emails are printed to the console. |
 | **Hosting** | One Docker container on an AWS Lightsail container service. |
 | **Deploys** | GitHub Actions: test → build image → push to Lightsail → health check. |
@@ -30,7 +30,7 @@ server, which also sends the enquiry-form emails. It runs as one container on AW
 
 ## 1. Run it locally
 
-You need **Node.js 20.19 or newer** (22 or 24 recommended; download the LTS version from
+You need **Node.js 20.9 or newer** (22 or 24 recommended; download the LTS version from
 [nodejs.org](https://nodejs.org)). Check with `node --version`. Nothing else: no database, no AWS
 account and no email settings. If your Node.js is too old, the commands below stop with a clear
 message and tell you what to install. (`.nvmrc` pins Node 24 for `nvm use`.)
@@ -44,20 +44,20 @@ npm run dev
 
 Open **http://localhost:5173**. This starts two things together:
 
-- the **React app** on port 5173 (Vite, with instant reload when you edit a file), and
-- the **Node server** on port 3001, which handles `/api/*`. Vite forwards API calls to it.
+- the **React app** on port 5173 (webpack dev server; the page reloads when you edit a file), and
+- the **Node server** on port 3001, which handles `/api/*`. The dev server forwards API calls to it.
 
 Fill in the contact form: the email is **printed in the terminal** instead of being sent.
 
-### Production mode (what visitors get)
+### Production mode (what visitors get; also the simplest way to run it)
 
 ```bash
 npm run build     # builds the React app into client/dist
 npm start         # serves everything from one server
 ```
 
-Open **http://localhost:3001**. This is the same server that runs on Lightsail. It also redirects
-old `.html` addresses (`/about.html` → `/about`), which the dev server does not.
+Open **http://localhost:3001**. This is the same server that runs on Lightsail, and it needs no
+dev server at all, so use it if `npm run dev` ever gives you trouble (rebuild after editing files).
 
 ### With Docker
 
@@ -85,9 +85,11 @@ if you moved the server in development.
 ## 2. Project structure
 
 ```
-client/                      React app (Vite)
+client/                      React app (webpack + Babel)
+  webpack.config.cjs         Build settings (Babel for JSX, CSS, dev server, production output)
+  scripts/dev.cjs            Starts the dev server (npm run dev)
   index.html                 HTML shell: fonts, icons, Organization/LocalBusiness structured data
-  public/                    Copied as-is: favicon, robots.txt, sitemap.xml, theme-init.js, assets/img/*
+  public/                    Copied as-is: favicon, robots.txt, theme-init.js, assets/img/*
   scripts/prerender-head.mjs After the build: writes each page's own <title>/description/social tags
   src/
     main.jsx, App.jsx        Entry point and the list of pages (routes)
@@ -141,8 +143,13 @@ Things still to fill in are marked `EDIT ME` or `PLACEHOLDER`. Changes show up i
 
 **Adding a page.** Create `client/src/pages/Foo.jsx` (call `useSeo('/foo')`), add its route in
 `client/src/App.jsx`, add its title/description to `PAGES` in `client/src/data/seo.js` (this also
-pre-renders its `<head>` and registers the URL with the server), add it to
-`client/public/sitemap.xml`, and link to it from the header or footer.
+pre-renders its `<head>`, registers the URL with the server and adds it to the generated
+`sitemap.xml`), and link to it from the header or footer.
+
+**Product pages.** Each product has its own page at `/products/<id>`. Its name, overview and
+features come from `client/src/data/products.js`; its headline, search title, screens and FAQs
+come from `client/src/data/productPages.js`. The screens are illustrative mock-ups until you add
+`image: { src, alt }` with a real screenshot (see the notes at the top of that file).
 
 **Colours.** The look is warm cream paper, near-black ink and a terracotta accent. Edit the CSS
 variables at the top of `client/src/styles/style.css`:
@@ -278,10 +285,9 @@ mode, before rolling it out. Outlook desktop ignores rounded corners (the button
 
 | Symptom | Fix |
 |---|---|
-| `This project needs Node.js 20.19 or newer` (or a crash mentioning `styleText` or `node:util`) | Your Node.js is too old. Install the current LTS from [nodejs.org](https://nodejs.org), open a **new** terminal, check `node --version`, then run `npm install` and the command again. |
-| `memory allocation of … bytes failed` or a crash when starting `npm run dev` on Windows | A crash inside the build tool's native code. The project uses Vite 7 (not the newer Rust-based Vite 8) for this reason. After pulling the update, delete the `node_modules` folders (root, `client` and `server`) and run `npm install` again. If it still happens, close memory-hungry programs, exclude the project folder from your antivirus scanner, and check that Windows has free disk space for its page file. |
+| `This project needs Node.js 20.9 or newer` | Your Node.js is too old. Install the current LTS from [nodejs.org](https://nodejs.org), open a **new** terminal, check `node --version`, then run `npm install` and the command again. |
 | `npm run dev` says port 3001/5173 is in use | Another copy is running. Close it, or set `PORT=3002` (and `API_PORT=3002` for the client). |
-| Form says "email us directly" in development | The Node server isn't running (use `npm run dev`, not just Vite). |
+| Form says "email us directly" in development | The Node server isn't running (use `npm run dev`, which starts both). |
 | Opened `http://localhost:3001` and see "website has not been built yet" | Run `npm run build` first, or use http://localhost:5173 while developing. |
 | `Configuration error: Refusing to start in production…` | Production mode needs `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` (or `ALLOW_LOG_EMAIL=true` to test). |
 | Real emails don't arrive | Check the server log for `enquiry_send_failed`: unverified sender/domain in SES, SES sandbox, or wrong SMTP credentials. |

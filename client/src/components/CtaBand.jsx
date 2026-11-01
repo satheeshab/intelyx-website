@@ -5,6 +5,7 @@ import { Icon } from './Icon.jsx';
 export default function CtaBand({
   title = 'Ready to transform your operations?',
   text = 'See how Intelyx fits the way you work. Book a free, personalised demo and get answers from our team within one business day.',
+  demoLink = '/contact?type=demo#enquiry',
 }) {
   return (
     <section className="section section--tight" aria-labelledby="cta-title">
@@ -16,7 +17,7 @@ export default function CtaBand({
               <p>{text}</p>
             </div>
             <div className="hero-actions">
-              <Link className="btn btn--light btn--lg" to="/contact?type=demo#enquiry">
+              <Link className="btn btn--light btn--lg" to={demoLink}>
                 Request a Demo <Icon name="arrow-right" className="icon--arrow" />
               </Link>
               <a className="btn btn--outline-light btn--lg" href="tel:+919380577396">

@@ -1,5 +1,5 @@
 /**
- * Runs after `vite build`. Writes one HTML file per page into dist/pages/, identical to the built
+ * Runs after the webpack production build. Writes one HTML file per page into dist/pages/, identical to the built
  * index.html except for the page-specific <head> (title, description, canonical, social tags and
  * structured data). The Node server sends the matching file for each URL, so crawlers and link
  * previews see the right text even though the page itself is rendered by React in the browser.
@@ -23,17 +23,30 @@ function replaceTag(html, pattern, replacement, name) {
   return html.replace(pattern, () => replacement);
 }
 
+// webpack may minify the page shell (dropping quotes around attribute values), so each pattern
+// accepts quoted and unquoted attribute values.
+const VALUE = '(?:"[^"]*"|\'[^\']*\'|[^\\s>]+)';
+const tag = (name, attr, key, valueAttr) =>
+  new RegExp(`<${name}\\s+${attr}=["']?${key}["']?\\s+${valueAttr}=${VALUE}\\s*/?>`);
+const TAGS = {
+  description: tag('meta', 'name', 'description', 'content'),
+  ogTitle: tag('meta', 'property', 'og:title', 'content'),
+  ogDescription: tag('meta', 'property', 'og:description', 'content'),
+  ogUrl: tag('meta', 'property', 'og:url', 'content'),
+  canonical: tag('link', 'rel', 'canonical', 'href'),
+};
+
 function render(page, url) {
   let html = template;
   html = replaceTag(html, /<title>[^<]*<\/title>/, `<title>${esc(page.title)}</title>`, 'title');
-  html = replaceTag(html, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(page.description)}">`, 'description');
-  html = replaceTag(html, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(page.title)}">`, 'og:title');
-  html = replaceTag(html, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(page.description)}">`, 'og:description');
+  html = replaceTag(html, TAGS.description, `<meta name="description" content="${esc(page.description)}">`, 'description');
+  html = replaceTag(html, TAGS.ogTitle, `<meta property="og:title" content="${esc(page.title)}">`, 'og:title');
+  html = replaceTag(html, TAGS.ogDescription, `<meta property="og:description" content="${esc(page.description)}">`, 'og:description');
   if (url) {
-    html = replaceTag(html, /<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${url}">`, 'canonical');
-    html = replaceTag(html, /<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${url}">`, 'og:url');
+    html = replaceTag(html, TAGS.canonical, `<link rel="canonical" href="${url}">`, 'canonical');
+    html = replaceTag(html, TAGS.ogUrl, `<meta property="og:url" content="${url}">`, 'og:url');
   } else {
-    html = html.replace(/\s*<link rel="canonical" href="[^"]*">/, '').replace(/\s*<meta property="og:url" content="[^"]*">/, '');
+    html = html.replace(new RegExp(`\\s*${TAGS.canonical.source}`), '').replace(new RegExp(`\\s*${TAGS.ogUrl.source}`), '');
   }
   const extra = [];
   if (page.noindex) extra.push('<meta name="robots" content="noindex">');
@@ -47,10 +60,31 @@ fs.mkdirSync(pagesDir, { recursive: true });
 
 const routes = [];
 for (const [route, page] of Object.entries(PAGES)) {
-  const file = route === '/' ? 'home.html' : `${route.slice(1)}.html`;
+  // /products/schools-erp -> products--schools-erp.html (one flat folder)
+  const file = route === '/' ? 'home.html' : `${route.slice(1).replace(/\//g, '--')}.html`;
   fs.writeFileSync(path.join(pagesDir, file), render(page, `${SITE_URL}${route}`));
   routes.push({ path: route, file });
 }
 fs.writeFileSync(path.join(pagesDir, '404.html'), render(NOT_FOUND, null));
 fs.writeFileSync(path.join(pagesDir, 'routes.json'), JSON.stringify(routes, null, 2));
 console.log(`Pre-rendered ${routes.length} pages + 404 into ${path.relative(process.cwd(), pagesDir) || pagesDir}`);
+
+// sitemap.xml lists every page above, so new pages are never left out.
+const SITEMAP = {
+  '/': ['monthly', '1.0'],
+  '/products': ['monthly', '0.9'],
+  '/contact': ['yearly', '0.8'],
+  '/about': ['yearly', '0.7'],
+  '/privacy': ['yearly', '0.3'],
+  '/terms': ['yearly', '0.3'],
+};
+const today = new Date().toISOString().slice(0, 10);
+const urls = Object.keys(PAGES).map((route) => {
+  const [changefreq, priority] = SITEMAP[route] || (route.startsWith('/products/') ? ['monthly', '0.9'] : ['yearly', '0.5']);
+  return `  <url>\n    <loc>${SITE_URL}${route}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+});
+fs.writeFileSync(
+  path.join(publicDir, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`,
+);
+console.log(`Wrote sitemap.xml with ${urls.length} pages`);

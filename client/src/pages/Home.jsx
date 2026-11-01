@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import CtaBand from '../components/CtaBand.jsx';
 import { Icon } from '../components/Icon.jsx';
 import { PRODUCTS } from '../data/products.js';
+import { productPath } from '../data/seo.js';
 import { useSeo } from '../hooks/useSeo.js';
 
 // ---- Copy lives here: edit the text below ----------------------------------
@@ -88,7 +89,6 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="container hero-grid">
           <div className="hero-copy">
-            <p className="hero-badge"><strong>Made in Bengaluru</strong> Business software built for India</p>
             <h1 id="hero-title">
               Intelligent software for the way you <span className="text-gradient">run your business.</span>
             </h1>
@@ -142,7 +142,7 @@ export default function Home() {
                   <div className="card-icon"><Icon name={p.icon} /></div>
                   <h3>{p.name}</h3>
                   <p>{p.card}</p>
-                  <Link className="link-arrow" to={{ pathname: '/products', hash: `#${p.id}` }}>
+                  <Link className="link-arrow" to={productPath(p.id)}>
                     Learn more<span className="sr-only"> about {p.name}</span> <Icon name="arrow-right" />
                   </Link>
                 </article>

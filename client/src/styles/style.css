@@ -579,6 +579,22 @@ a:hover { color: var(--color-accent-hover); }
 
 .brand-name span { color: var(--logo-x); }
 
+/* Tagline under the wordmark: "INTELLIGENCE | EXPERIENCE" */
+.brand-text { display: inline-flex; flex-direction: column; gap: 5px; }
+
+.brand-tagline {
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.brand-tagline i { font-style: normal; color: var(--logo-x); margin: 0 0.45em; }
+
 .primary-nav { display: none; }
 
 .nav-list { list-style: none; }
@@ -844,30 +860,6 @@ a:hover { color: var(--color-accent-hover); }
 
 @media (min-width: 1024px) {
   .hero-grid { grid-template-columns: 1.02fr 1fr; }
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
-  padding: 6px 14px 6px 6px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-muted);
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  box-shadow: var(--shadow-sm);
-}
-
-.hero-badge strong {
-  white-space: nowrap;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
-  font-weight: 700;
 }
 
 .hero h1 { margin-bottom: 20px; }
@@ -1310,6 +1302,7 @@ a:hover { color: var(--color-accent-hover); }
 .product-title .eyebrow { margin-bottom: 4px; }
 
 .product-overview { color: var(--color-muted); font-size: var(--fs-md); margin: 0; }
+.product-more { margin-top: 18px; }
 
 .who-for {
   padding: 24px;
@@ -1348,8 +1341,67 @@ a:hover { color: var(--color-accent-hover); }
 .feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
 .feature .dropdown-icon { width: 40px; height: 40px; }
+.feature h3,
 .feature h4 { margin: 2px 0 4px; font-size: 1.1875rem; letter-spacing: -0.005em; }
 .feature p { margin: 0; color: var(--color-muted); font-size: var(--fs-sm); line-height: 1.55; }
+
+/* Product pages (/products/<id>) */
+.product-hero-actions { margin-top: 28px; }
+
+.product-who {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 680px;
+  margin: 24px 0 0;
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+}
+
+.product-who .icon { flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; color: var(--color-accent-strong); }
+.product-who strong { color: var(--color-heading); }
+
+.product-screens { display: grid; gap: clamp(2.5rem, 2rem + 2vw, 4rem); }
+
+.product-screen { display: grid; gap: 20px; align-items: center; margin: 0; }
+.product-screen-frame { min-width: 0; }
+
+.product-screen-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.product-screen .mockup-body { min-height: 0; }
+.product-screen figcaption h3 { margin-bottom: 8px; }
+.product-screen figcaption p { margin: 0; color: var(--color-muted); font-size: var(--fs-md); }
+
+@media (min-width: 900px) {
+  .product-screen { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: clamp(2rem, 1rem + 3vw, 4rem); }
+  .product-screens > :nth-child(even) .product-screen { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+  .product-screens > :nth-child(even) .product-screen-frame { order: 2; }
+}
+
+.screens-note { margin: 2.5rem 0 0; color: var(--color-muted); font-size: var(--fs-sm); text-align: center; }
+
+.kpi em.kpi-note { color: var(--color-muted); font-weight: 500; }
+.mockup-row em.tone-warn { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+.mockup-row em.tone-info { background: var(--color-bg-alt); color: var(--color-muted); }
+
+.steps .card { position: relative; }
+
+.step-number {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  color: var(--color-border-strong);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
 
 /* --------------------------------------------------------------------------
    10. About page
@@ -1466,19 +1518,6 @@ a:hover { color: var(--color-accent-hover); }
 .timeline-item h3 { font-size: 1.375rem; margin-bottom: 6px; }
 .timeline-item p { margin: 0; color: var(--color-muted); }
 
-.placeholder-note {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 6px 12px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: 999px;
-  color: var(--color-muted);
-  font-size: var(--fs-xs);
-}
-
-.placeholder-note .icon { width: 14px; height: 14px; }
 
 /* --------------------------------------------------------------------------
    11. Contact page & enquiry form
@@ -1910,18 +1949,6 @@ fieldset.field legend { margin-bottom: 8px; }
 .legal ul { padding-left: 1.25em; margin-bottom: 1em; }
 .legal li { margin-bottom: 0.4em; }
 
-.notice {
-  display: flex;
-  gap: 12px;
-  padding: 16px 18px;
-  border: 1px dashed var(--color-border-strong);
-  border-radius: 12px;
-  background: var(--color-surface);
-  color: var(--color-muted);
-  font-size: var(--fs-sm);
-}
-
-.notice .icon { width: 20px; height: 20px; color: var(--color-accent-strong); margin-top: 2px; }
 
 .not-found {
   display: grid;

@@ -25,12 +25,12 @@ const APART = [
   { icon: 'users', title: 'Implementation and training', text: 'We migrate your data, configure the system and train your staff on-site or online, then stay with you after go-live.' },
 ];
 
-// EDIT ME: replace the [Year] placeholders and the text with your real milestones.
+// EDIT ME: milestone years and text (adjust as your story grows).
 const MILESTONES = [
-  { year: '[Year]', title: 'Intelyx Tech Solutions LLP is founded', text: 'A small team in Bengaluru sets out to build business software that is simpler, more reliable and fairly priced.' },
-  { year: '[Year]', title: 'First product goes live', text: 'Our first customers start running daily operations on Intelyx, and their feedback shapes every release.' },
-  { year: '[Year]', title: 'Four products, one platform', text: 'Schools ERP, Hospitals ERP, Accounting and Service Booking now share a secure, modern cloud foundation.' },
-  { year: '[Year]', title: "What's next", text: 'Expanding our support team and integrations to serve more institutions and businesses across India.' },
+  { year: '2026', title: 'Intelyx Tech Solutions LLP is founded', text: 'A small team in Bengaluru sets out to build business software that is simpler, more reliable and fairly priced.' },
+  { year: '2026', title: 'First product goes live', text: 'Our first customers start running daily operations on Intelyx, and their feedback shapes every release.' },
+  { year: '2026', title: 'Four products, one platform', text: 'Schools ERP, Hospitals ERP, Accounting and Service Booking now share a secure, modern cloud foundation.' },
+  { year: '2026', title: "What's next", text: 'Expanding our support team and integrations to serve more institutions and businesses across India.' },
 ];
 
 export default function About() {
@@ -128,7 +128,6 @@ export default function About() {
           <div className="section-header section-header--center reveal">
             <p className="eyebrow">Our journey</p>
             <h2 id="journey-title">Milestones so far</h2>
-            <p className="placeholder-note"><Icon name="edit" /> Placeholder milestones: edit these in client/src/pages/About.jsx</p>
           </div>
           <ol className="timeline">
             {MILESTONES.map((m) => (

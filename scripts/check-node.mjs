@@ -5,11 +5,11 @@
  */
 const version = process.env.INTELYX_FAKE_NODE_VERSION || process.versions.node; // the override is for testing
 const [major, minor] = version.split('.').map(Number);
-const supported = major > 22 || (major === 22 && minor >= 12) || (major === 20 && minor >= 19);
+const supported = major > 20 || (major === 20 && minor >= 9);
 
 if (!supported) {
   console.error(`
-  This project needs Node.js 20.19 or newer (22.12+ or 24 recommended).
+  This project needs Node.js 20.9 or newer (22 or 24 recommended).
   You are running Node.js ${version}.
 
   Fix: install the current LTS version from https://nodejs.org (or run "nvm install 24"

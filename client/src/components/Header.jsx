@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { PRODUCTS } from '../data/products.js';
+import { productPath } from '../data/seo.js';
 import { useTheme } from '../hooks/useTheme.js';
 import { Icon } from './Icon.jsx';
 import { Brand } from './Logo.jsx';
@@ -105,7 +106,7 @@ export default function Header() {
               <ul className="dropdown" id="products-menu">
                 {PRODUCTS.map((p) => (
                   <li key={p.id}>
-                    <Link className="dropdown-link" to={{ pathname: '/products', hash: `#${p.id}` }}>
+                    <Link className="dropdown-link" to={productPath(p.id)}>
                       <span className="dropdown-icon">
                         <Icon name={p.icon} />
                       </span>

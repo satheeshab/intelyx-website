@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
 import { PRODUCTS } from '../data/products.js';
+import { productPath } from '../data/seo.js';
 import { BrandIcon, Icon } from './Icon.jsx';
 import { Brand } from './Logo.jsx';
 
-// Social links: replace "#" with your profile URLs (and remove the `placeholder` flag to make them real links).
+// Social links: fill in a profile URL to show its icon. Icons with an empty href are hidden,
+// so the footer never shows links that go nowhere.
 const SOCIAL = [
-  { name: 'linkedin', label: 'Intelyx on LinkedIn', href: '#' },
-  { name: 'x', label: 'Intelyx on X', href: '#' },
-  { name: 'youtube', label: 'Intelyx on YouTube', href: '#' },
-  { name: 'facebook', label: 'Intelyx on Facebook', href: '#' },
-];
+  { name: 'linkedin', label: 'Intelyx on LinkedIn', href: '' },
+  { name: 'x', label: 'Intelyx on X', href: '' },
+  { name: 'youtube', label: 'Intelyx on YouTube', href: '' },
+  { name: 'facebook', label: 'Intelyx on Facebook', href: '' },
+].filter((s) => s.href);
 
 export default function Footer() {
   return (
@@ -20,15 +22,17 @@ export default function Footer() {
             <div className="footer-about">
               <Brand />
               <p>Practical, reliable business software for schools, hospitals, SMEs and service providers. Built in Bengaluru.</p>
-              <ul className="social">
-                {SOCIAL.map((s) => (
-                  <li key={s.name}>
-                    <a href={s.href} aria-label={s.label}>
-                      <BrandIcon name={s.name} />
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              {SOCIAL.length > 0 && (
+                <ul className="social">
+                  {SOCIAL.map((s) => (
+                    <li key={s.name}>
+                      <a href={s.href} aria-label={`${s.label} (opens in a new tab)`} target="_blank" rel="noopener noreferrer">
+                        <BrandIcon name={s.name} />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
             <div className="footer-col">
@@ -36,7 +40,7 @@ export default function Footer() {
               <ul className="footer-links">
                 {PRODUCTS.map((p) => (
                   <li key={p.id}>
-                    <Link to={{ pathname: '/products', hash: `#${p.id}` }}>{p.name}</Link>
+                    <Link to={productPath(p.id)}>{p.name}</Link>
                   </li>
                 ))}
               </ul>

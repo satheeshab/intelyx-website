@@ -4,7 +4,7 @@ import { BRANDS, ICONS } from '../data/icons.js';
 export function Icon({ name, className = '' }) {
   const body = ICONS[name];
   if (!body) {
-    if (import.meta.env?.DEV) console.warn(`Unknown icon: ${name}`);
+    if (process.env.NODE_ENV !== 'production') console.warn(`Unknown icon: ${name}`);
     return null;
   }
   return (
