@@ -37,7 +37,7 @@ export function signatureHtml({ name = '[Full Name]', designation = '[Designatio
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:500px; width:100%; border-collapse:collapse; font-family:${font};">
   <tr>
     <td style="padding:0 0 12px 0;">
-      <a href="${SITE}" style="text-decoration:none;"><img src="${LOGO_URL}" width="132" height="40" alt="Intelyx" style="display:block; width:132px; height:40px; border:0; outline:none; text-decoration:none;"></a>
+      <a href="${SITE}" style="text-decoration:none;"><img src="${LOGO_URL}" width="192" height="40" alt="Intelyx: Intelligence | Experience" style="display:block; width:192px; height:40px; border:0; outline:none; text-decoration:none;"></a>
     </td>
   </tr>
   <tr>
