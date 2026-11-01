@@ -108,6 +108,13 @@ website `https://www.intelyx.co.in`, use case "website enquiry notifications and
 
 ## Step 2: Create the Lightsail container service
 
+> **Already created the service in the console?** Skip the create command and just check it below.
+> The workflow expects the name `intelyx-web` in `ap-south-1` (Mumbai). If yours differs, add the
+> GitHub variables `LIGHTSAIL_SERVICE` (its name) and `AWS_REGION` (its region) in step 3b, and
+> pass that region to `create-github-role.sh` in step 3a. You don't need to create a deployment
+> by hand: the workflow replaces whatever deployment the service has with the website container
+> (`web`, port 8080, health check `/healthz`).
+
 ```bash
 aws lightsail create-container-service \
   --service-name intelyx-web \
