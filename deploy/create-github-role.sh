@@ -48,7 +48,19 @@ fi
 
 # 2. The role (trust policy filled in from the template)
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
-sed -e "s|__ACCOUNT_ID__|${ACCOUNT}|g" -e "s|__GITHUB_REPO__|${REPO}|g" "$HERE/github-trust-policy.json" > "$TMP/trust.json"
+# GitHub names the repository in its sign-in token either as "repo:owner/name" or, for repositories
+# using immutable subjects, as "repo:owner@<id>/name@<id>". Ask GitHub which one this repository
+# uses; the role trusts both forms. A private repository needs GITHUB_TOKEN set to read this.
+SUB_PREFIX="$(curl -fsS ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} \
+  "https://api.github.com/repos/${REPO}/actions/oidc/customization/sub" 2>/dev/null \
+  | jq -r '.sub_claim_prefix // empty' 2>/dev/null || true)"
+if [[ -z "$SUB_PREFIX" ]]; then
+  SUB_PREFIX="repo:${REPO}"
+  echo "→ Could not read the token format from GitHub; trusting repo:${REPO} only"
+fi
+echo "→ GitHub identifies this repository as: ${SUB_PREFIX}"
+sed -e "s|__ACCOUNT_ID__|${ACCOUNT}|g" -e "s|__GITHUB_REPO__|${REPO}|g" -e "s|__SUB_PREFIX__|${SUB_PREFIX}|g" \
+  "$HERE/github-trust-policy.json" > "$TMP/trust.json"
 if aws iam get-role --role-name "$ROLE" >/dev/null 2>&1; then
   aws iam update-assume-role-policy --role-name "$ROLE" --policy-document "file://$TMP/trust.json"
   echo "→ Updated the trust policy of existing role ${ROLE}"
@@ -69,6 +81,7 @@ echo "✓ Done. Add this as the GitHub variable AWS_DEPLOY_ROLE_ARN:"
 echo
 echo "    ${ARN}"
 echo
-echo "  The role trusts only:  repo:${REPO}:environment:production"
+echo "  The role trusts only:  ${SUB_PREFIX}:environment:production"
+echo "                         repo:${REPO}:environment:production"
 echo "  Provider audiences:    $(aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$PROVIDER" --query 'ClientIDList' --output text)"
 echo
