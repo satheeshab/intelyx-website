@@ -579,6 +579,22 @@ a:hover { color: var(--color-accent-hover); }
 
 .brand-name span { color: var(--logo-x); }
 
+/* Tagline under the wordmark: "INTELLIGENCE | EXPERIENCE" */
+.brand-text { display: inline-flex; flex-direction: column; gap: 5px; }
+
+.brand-tagline {
+  font-family: var(--font-body);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.brand-tagline i { font-style: normal; color: var(--logo-x); margin: 0 0.45em; }
+
 .primary-nav { display: none; }
 
 .nav-list { list-style: none; }
