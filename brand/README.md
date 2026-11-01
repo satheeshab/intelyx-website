@@ -21,6 +21,11 @@ where SVG isn't accepted, e.g. Word, PowerPoint or social media uploads.
   terracotta stroke: intelligence moving forward. The dot and the stroke are terracotta.
 - **Wordmark:** "Intelyx" in Newsreader Medium, a serif that matches the website's headlines, with
   slightly tightened spacing. The final **x** is terracotta.
+- **Tagline:** "INTELLIGENCE | EXPERIENCE" in Inter SemiBold capitals with wide letter spacing,
+  sitting under the wordmark and lined up with the bottom of the mark. The words are warm grey
+  and the divider is terracotta (one colour in the black and white files). Every logo that shows
+  the name carries the tagline, laid out exactly like the website header. The mark on its own
+  has no tagline.
 - **On dark backgrounds** the tile turns terracotta and the glyphs turn near-black (the
   *reversed* files).
 
@@ -37,12 +42,14 @@ where SVG isn't accepted, e.g. Word, PowerPoint or social media uploads.
 ## Clear space and minimum size
 
 - Keep empty space around the logo at least **half the height of the mark** on every side.
-- Smallest size: **80px wide** on screen (about 20mm in print) for the full logo, and
+- Smallest size: **190px wide** on screen (about 50mm in print) for the full logo, so the
+  tagline stays readable, and
   **16px** for the mark on its own.
 
 ## Please don't
 
 - Stretch, squash, rotate or add effects (shadows, outlines, gradients) to the logo.
 - Change the colours, or put the primary logo on a dark background (use the reversed version).
-- Retype the name in another font, or rearrange the mark and wordmark.
+- Retype the name or tagline in another font, rearrange the mark, wordmark and tagline, or
+  drop the tagline from the full logo.
 - Place it on busy photos without enough contrast.
