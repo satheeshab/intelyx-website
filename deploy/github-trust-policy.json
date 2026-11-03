@@ -13,7 +13,10 @@
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
         },
         "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:__GITHUB_REPO__:environment:production"
+          "token.actions.githubusercontent.com:sub": [
+            "__SUB_PREFIX__:environment:production",
+            "repo:__GITHUB_REPO__:environment:production"
+          ]
         }
       }
     }

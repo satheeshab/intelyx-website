@@ -283,7 +283,7 @@ On an Apple Silicon Mac add `--platform linux/amd64` to `docker build`, because 
 | What you see | What to do |
 |---|---|
 | Workflow says **"Deploy skipped"** | The `AWS_DEPLOY_ROLE_ARN` variable is missing (step 3b). |
-| **"Not authorized to perform sts:AssumeRoleWithWebIdentity"** | The `production` environment doesn't exist, doesn't allow `main`, or the repository name given to `create-github-role.sh` differs from the actual `owner/repo`. Re-run the script with the exact name. |
+| **"Not authorized to perform sts:AssumeRoleWithWebIdentity"** | Re-run `./deploy/create-github-role.sh satheeshab/intelyx-website` in CloudShell (in the AWS account that owns the Lightsail service): it adds the missing `sts.amazonaws.com` audience to a GitHub provider created by another project, and resets the role's trust. It also asks GitHub how it names the repository in its tokens: repositories with *immutable subjects* send `repo:owner@<id>/name@<id>` instead of `repo:owner/name`, and the role trusts both. Then check that the ARN it prints is exactly the `AWS_DEPLOY_ROLE_ARN` variable, and that the `production` environment allows `main`. The failed run's **Explain a failed AWS sign-in** step shows what GitHub sent to AWS. |
 | **AccessDenied** for a `lightsail:` action | Add the named action to the `deploy-to-lightsail` policy of the `intelyx-github-deploy` role (`deploy/github-deploy-policy.json` lists the current ones). |
 | **"Container service … is 'DISABLED' / 'DEPLOYING'"** | Wait until it is `READY` or `RUNNING` (step 2). |
 | Workflow error **"Add the SMTP_USER and SMTP_PASS secrets"** | Step 3b, secrets. |
@@ -294,9 +294,29 @@ On an Apple Silicon Mac add `--platform linux/amd64` to `docker build`, because 
 
 ## Using another email service
 
-Any SMTP service works. Set `SMTP_HOST`, `SMTP_USER` and `SMTP_PASS` (and `SMTP_PORT` if it isn't
-587; port 465 uses SSL automatically). For example, your GoDaddy mailbox:
-`SMTP_HOST=smtpout.secureserver.net`, `SMTP_PORT=465`, with the mailbox address and password. Set
-`FROM_EMAIL` to the same mailbox, since GoDaddy only sends from addresses it hosts. GoDaddy
-limits how many emails you can send per day and may throttle mail from cloud servers. SES is the
-more dependable choice for a website.
+Any SMTP service works. Set `SMTP_HOST`, `SMTP_USER` and `SMTP_PASS`, and `SMTP_PORT` if it isn't
+587 (port 465 uses SSL automatically).
+
+### Send through the GoDaddy mailbox (office@intelyx.co.in)
+
+In GitHub: **Settings → Secrets and variables → Actions**.
+
+| Kind | Name | Value |
+|---|---|---|
+| Variable | `SMTP_HOST` | `smtpout.secureserver.net` |
+| Variable | `SMTP_PORT` | `465` |
+| Variable | `FROM_EMAIL` | `office@intelyx.co.in` (GoDaddy only sends as the mailbox itself) |
+| Secret | `SMTP_USER` | `office@intelyx.co.in` |
+| Secret | `SMTP_PASS` | the mailbox password |
+
+If the **production** environment (Settings → Environments) has its own `SMTP_USER`/`SMTP_PASS`,
+those win: update or delete them. Then **Actions → Test and deploy → Run workflow**.
+
+Things to know:
+
+- Enquiries arrive from and to `office@intelyx.co.in`; **Reply** still goes to the visitor.
+- Changing the mailbox password breaks the form until `SMTP_PASS` is updated and the workflow re-run.
+- GoDaddy limits daily sending (a few hundred) and may block logins from cloud servers. The log then
+  shows `535` or `EAUTH`: try `SMTP_PORT` = `587`, or switch back to SES.
+- To go back to SES, delete the `SMTP_HOST`, `SMTP_PORT` and `FROM_EMAIL` variables and put the SES
+  SMTP credentials in the secrets.

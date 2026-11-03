@@ -6,7 +6,8 @@
 # Signs in to AWS with GitHub OIDC (short-lived tokens): no AWS access keys are stored in GitHub.
 # One-time setup: see DEPLOY.md. Settings → Secrets and variables → Actions:
 #   Variables: AWS_DEPLOY_ROLE_ARN (required), AWS_REGION (default ap-south-1),
-#              LIGHTSAIL_SERVICE (default intelyx-web), SMTP_HOST, TO_EMAIL, FROM_EMAIL, FROM_NAME, SEND_ACK
+#              LIGHTSAIL_SERVICE (default intelyx-web), SMTP_HOST, SMTP_PORT (default 587),
+#              TO_EMAIL, FROM_EMAIL, FROM_NAME, SEND_ACK
 #   Secrets:   SMTP_USER, SMTP_PASS
 # Until AWS_DEPLOY_ROLE_ARN exists, the deploy job is skipped with a notice instead of failing.
 name: Test and deploy
@@ -111,6 +112,28 @@ jobs:
           role-session-name: intelyx-deploy-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Explain a failed AWS sign-in
+        if: failure() && steps.cfg.outputs.ready == 'true'
+        env:
+          ROLE: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          # Prints what GitHub presented to AWS (claims only, never the token) so it can be
+          # compared with the role's trust policy. See DEPLOY.md, Troubleshooting.
+          token=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          echo "Role GitHub asked for:  $ROLE"
+          echo "Claims GitHub sent to AWS:"
+          python3 - "$token" <<'PY'
+          import base64, json, sys
+          part = sys.argv[1].split('.')[1]
+          claims = json.loads(base64.urlsafe_b64decode(part + '=' * (-len(part) % 4)))
+          for k in ('iss', 'aud', 'sub', 'repository', 'environment', 'ref'):
+              print(f'  {k:12} {claims.get(k)}')
+          PY
+          echo
+          echo "The role's trust policy must allow aud = sts.amazonaws.com and sub = the value above,"
+          echo "and the role must be in the AWS account where you ran deploy/create-github-role.sh."
+
       - name: Install the Lightsail plugin (lightsailctl)
         if: steps.cfg.outputs.ready == 'true'
         run: |
@@ -148,6 +171,7 @@ jobs:
         env:
           IMAGE: ${{ steps.push.outputs.image }}
           SMTP_HOST: ${{ vars.SMTP_HOST || 'email-smtp.ap-south-1.amazonaws.com' }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           TO_EMAIL: ${{ vars.TO_EMAIL || 'office@intelyx.co.in' }}
@@ -162,7 +186,7 @@ jobs:
 
           # Container definition. Written to a temporary file on the runner (never printed).
           jq -n \
-            --arg image "$IMAGE" --arg host "$SMTP_HOST" --arg user "$SMTP_USER" --arg pass "$SMTP_PASS" \
+            --arg image "$IMAGE" --arg host "$SMTP_HOST" --arg port "$SMTP_PORT" --arg user "$SMTP_USER" --arg pass "$SMTP_PASS" \
             --arg to "$TO_EMAIL" --arg from "$FROM_EMAIL" --arg name "$FROM_NAME" --arg ack "$SEND_ACK" \
             '{web: {
                 image: $image,
@@ -170,7 +194,7 @@ jobs:
                 environment: {
                   NODE_ENV: "production", PORT: "8080", FORCE_HTTPS: "true",
                   APEX_HOST: "intelyx.co.in", CANONICAL_HOST: "www.intelyx.co.in",
-                  SMTP_HOST: $host, SMTP_PORT: "587", SMTP_USER: $user, SMTP_PASS: $pass,
+                  SMTP_HOST: $host, SMTP_PORT: $port, SMTP_USER: $user, SMTP_PASS: $pass,
                   TO_EMAIL: $to, FROM_EMAIL: $from, FROM_NAME: $name, SEND_ACK: $ack
                 }
               }}' > "$RUNNER_TEMP/containers.json"
