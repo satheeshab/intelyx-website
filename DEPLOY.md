@@ -294,9 +294,29 @@ On an Apple Silicon Mac add `--platform linux/amd64` to `docker build`, because 
 
 ## Using another email service
 
-Any SMTP service works. Set `SMTP_HOST`, `SMTP_USER` and `SMTP_PASS` (and `SMTP_PORT` if it isn't
-587; port 465 uses SSL automatically). For example, your GoDaddy mailbox:
-`SMTP_HOST=smtpout.secureserver.net`, `SMTP_PORT=465`, with the mailbox address and password. Set
-`FROM_EMAIL` to the same mailbox, since GoDaddy only sends from addresses it hosts. GoDaddy
-limits how many emails you can send per day and may throttle mail from cloud servers. SES is the
-more dependable choice for a website.
+Any SMTP service works. Set `SMTP_HOST`, `SMTP_USER` and `SMTP_PASS`, and `SMTP_PORT` if it isn't
+587 (port 465 uses SSL automatically).
+
+### Send through the GoDaddy mailbox (office@intelyx.co.in)
+
+In GitHub: **Settings → Secrets and variables → Actions**.
+
+| Kind | Name | Value |
+|---|---|---|
+| Variable | `SMTP_HOST` | `smtpout.secureserver.net` |
+| Variable | `SMTP_PORT` | `465` |
+| Variable | `FROM_EMAIL` | `office@intelyx.co.in` (GoDaddy only sends as the mailbox itself) |
+| Secret | `SMTP_USER` | `office@intelyx.co.in` |
+| Secret | `SMTP_PASS` | the mailbox password |
+
+If the **production** environment (Settings → Environments) has its own `SMTP_USER`/`SMTP_PASS`,
+those win: update or delete them. Then **Actions → Test and deploy → Run workflow**.
+
+Things to know:
+
+- Enquiries arrive from and to `office@intelyx.co.in`; **Reply** still goes to the visitor.
+- Changing the mailbox password breaks the form until `SMTP_PASS` is updated and the workflow re-run.
+- GoDaddy limits daily sending (a few hundred) and may block logins from cloud servers. The log then
+  shows `535` or `EAUTH`: try `SMTP_PORT` = `587`, or switch back to SES.
+- To go back to SES, delete the `SMTP_HOST`, `SMTP_PORT` and `FROM_EMAIL` variables and put the SES
+  SMTP credentials in the secrets.

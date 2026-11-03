@@ -6,7 +6,8 @@
 # Signs in to AWS with GitHub OIDC (short-lived tokens): no AWS access keys are stored in GitHub.
 # One-time setup: see DEPLOY.md. Settings → Secrets and variables → Actions:
 #   Variables: AWS_DEPLOY_ROLE_ARN (required), AWS_REGION (default ap-south-1),
-#              LIGHTSAIL_SERVICE (default intelyx-web), SMTP_HOST, TO_EMAIL, FROM_EMAIL, FROM_NAME, SEND_ACK
+#              LIGHTSAIL_SERVICE (default intelyx-web), SMTP_HOST, SMTP_PORT (default 587),
+#              TO_EMAIL, FROM_EMAIL, FROM_NAME, SEND_ACK
 #   Secrets:   SMTP_USER, SMTP_PASS
 # Until AWS_DEPLOY_ROLE_ARN exists, the deploy job is skipped with a notice instead of failing.
 name: Test and deploy
@@ -170,6 +171,7 @@ jobs:
         env:
           IMAGE: ${{ steps.push.outputs.image }}
           SMTP_HOST: ${{ vars.SMTP_HOST || 'email-smtp.ap-south-1.amazonaws.com' }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '587' }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           TO_EMAIL: ${{ vars.TO_EMAIL || 'office@intelyx.co.in' }}
@@ -184,7 +186,7 @@ jobs:
 
           # Container definition. Written to a temporary file on the runner (never printed).
           jq -n \
-            --arg image "$IMAGE" --arg host "$SMTP_HOST" --arg user "$SMTP_USER" --arg pass "$SMTP_PASS" \
+            --arg image "$IMAGE" --arg host "$SMTP_HOST" --arg port "$SMTP_PORT" --arg user "$SMTP_USER" --arg pass "$SMTP_PASS" \
             --arg to "$TO_EMAIL" --arg from "$FROM_EMAIL" --arg name "$FROM_NAME" --arg ack "$SEND_ACK" \
             '{web: {
                 image: $image,
@@ -192,7 +194,7 @@ jobs:
                 environment: {
                   NODE_ENV: "production", PORT: "8080", FORCE_HTTPS: "true",
                   APEX_HOST: "intelyx.co.in", CANONICAL_HOST: "www.intelyx.co.in",
-                  SMTP_HOST: $host, SMTP_PORT: "587", SMTP_USER: $user, SMTP_PASS: $pass,
+                  SMTP_HOST: $host, SMTP_PORT: $port, SMTP_USER: $user, SMTP_PASS: $pass,
                   TO_EMAIL: $to, FROM_EMAIL: $from, FROM_NAME: $name, SEND_ACK: $ack
                 }
               }}' > "$RUNNER_TEMP/containers.json"
