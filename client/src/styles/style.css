@@ -20,43 +20,43 @@
 
 /* --------------------------------------------------------------------------
    1. Design tokens: light theme (default)
-   Warm cream paper, near-black ink, a terracotta accent and serif headlines.
+   Two-tone: deep navy and orange on cool white, set in Roboto (bold headings, light accents).
    -------------------------------------------------------------------------- */
 :root {
   color-scheme: light;
 
   /* Brand */
-  --color-ink: #141413;            /* Near-black: buttons, dark panels */
-  --color-accent: #d97757;         /* Terracotta (decorative: icons, highlights) */
-  --color-accent-strong: #a94727;  /* Terracotta for text and links (AA on every cream surface) */
-  --color-accent-hover: #8f3b20;
-  --color-accent-soft: #f3e3db;    /* Tinted backgrounds behind icons */
-  --color-chart-line: #3d3d3a;
+  --color-ink: #0a1f44;            /* Navy: buttons, dark panels */
+  --color-accent: #ef7d22;         /* Orange (decorative: icons, lines, highlights) */
+  --color-accent-strong: #a64b0a;  /* Orange for text and links (AA on every light surface) */
+  --color-accent-hover: #843a06;
+  --color-accent-soft: #fdeee0;    /* Tinted backgrounds behind icons */
+  --color-chart-line: #1a3566;
 
   /* Buttons */
-  --color-primary: #141413;
-  --color-on-primary: #faf9f5;
-  --color-primary-hover: #3d3d3a;
-  --color-secondary-bg: #efede4;
-  --color-secondary-border: #d9d6ca;
+  --color-primary: #0a1f44;
+  --color-on-primary: #ffffff;
+  --color-primary-hover: #17305e;
+  --color-secondary-bg: #e9eef5;
+  --color-secondary-border: #cfd8e4;
 
-  /* Dark feature panels (call-to-action band, mission card, industry tiles) */
-  --color-band: #141413;
-  --color-on-band: #faf9f5;
-  --color-on-band-muted: #c9c6bb;
-  --color-band-accent: #e8896a;
+  /* Navy feature panels (call-to-action band, mission card, industry band) */
+  --color-band: #0a1f44;
+  --color-on-band: #ffffff;
+  --color-on-band-muted: #c3cfe0;
+  --color-band-accent: #f59a4c;
 
   /* Neutrals */
-  --color-bg: #faf9f5;
-  --color-bg-alt: #f0eee6;
+  --color-bg: #f6f8fb;
+  --color-bg-alt: #edf1f6;
   --color-surface: #ffffff;
-  --color-surface-2: #f6f5ef;
-  --color-border: #e8e6dc;
-  --color-border-strong: #d3d0c4;
-  --color-input-border: #8e8b80;   /* form fields: 3:1 against the page */
-  --color-heading: #141413;
-  --color-text: #3d3d3a;
-  --color-muted: #5e5d59;
+  --color-surface-2: #f3f6fa;
+  --color-border: #dfe5ee;
+  --color-border-strong: #c6d0dd;
+  --color-input-border: #7b8798;   /* form fields: 3:1 against the page */
+  --color-heading: #0a1f44;
+  --color-text: #2c3a4d;
+  --color-muted: #546277;
 
   /* Feedback */
   --color-error: #b42318;
@@ -65,33 +65,33 @@
   --color-success-soft: #e7f6ee;
 
   /* Effects */
-  --shadow-sm: 0 1px 2px rgba(20, 20, 19, 0.05), 0 1px 3px rgba(20, 20, 19, 0.04);
-  --shadow-md: 0 4px 12px rgba(20, 20, 19, 0.06), 0 2px 4px rgba(20, 20, 19, 0.04);
-  --shadow-lg: 0 24px 48px -16px rgba(20, 20, 19, 0.18), 0 8px 16px -8px rgba(20, 20, 19, 0.08);
-  --header-bg: rgba(250, 249, 245, 0.88);
-  --hero-glow-1: transparent;
-  --hero-glow-2: transparent;
+  --shadow-sm: 0 1px 2px rgba(10, 31, 68, 0.06), 0 1px 3px rgba(10, 31, 68, 0.05);
+  --shadow-md: 0 4px 12px rgba(10, 31, 68, 0.08), 0 2px 4px rgba(10, 31, 68, 0.05);
+  --shadow-lg: 0 24px 48px -16px rgba(10, 31, 68, 0.22), 0 8px 16px -8px rgba(10, 31, 68, 0.10);
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --hero-glow-1: rgba(20, 52, 110, 0.10);
+  --hero-glow-2: rgba(239, 125, 34, 0.08);
   --focus-ring: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-accent-strong);
 
-  /* Logo: ink tile, cream "i", terracotta dot and stroke, terracotta "x" */
-  --logo-tile: #141413;
-  --logo-glyph: #faf9f5;
-  --logo-dot: #d97757;
-  --logo-x: #a94727;
+  /* Logo: navy tile, white "i", orange dot and stroke, orange "x" */
+  --logo-tile: #0a1f44;
+  --logo-glyph: #ffffff;
+  --logo-dot: #ef7d22;
+  --logo-x: #a64b0a;
 
-  /* Typography: serif for headlines, sans for everything else */
-  --font-heading: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  /* Typography: Roboto throughout; bold headings with light-weight accents */
+  --font-heading: "Roboto", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --font-body: "Roboto", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
   --font-ui: var(--font-body);
-  --font-brand: var(--font-heading); /* the "Intelyx" wordmark */
+  --font-brand: "Newsreader", Georgia, "Times New Roman", serif; /* the "Intelyx" wordmark: matches the logo files */
   --fs-xs: 0.8125rem;
   --fs-sm: 0.9375rem;
   --fs-base: 1rem;
   --fs-md: 1.125rem;
   --fs-lg: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
   --fs-xl: clamp(1.875rem, 1.5rem + 1.4vw, 2.5rem);
-  --fs-2xl: clamp(2.25rem, 1.7rem + 2.2vw, 3.375rem);
-  --fs-hero: clamp(2.75rem, 1.8rem + 4.2vw, 4.75rem);
+  --fs-2xl: clamp(2rem, 1.6rem + 1.9vw, 3rem);
+  --fs-hero: clamp(2.5rem, 1.7rem + 3.6vw, 4.25rem);
 
   /* Spacing & shape */
   --space-section: clamp(4rem, 3rem + 4vw, 7.5rem);
@@ -114,37 +114,37 @@
     color-scheme: dark;
 
     /* Brand */
-    --color-ink: #faf9f5;
-    --color-accent: #d97757;
-    --color-accent-strong: #e8896a;
-    --color-accent-hover: #f0a58b;
-    --color-accent-soft: rgba(217, 119, 87, 0.16);
-    --color-chart-line: #d8d5cb;
+    --color-ink: #f3f6fb;
+    --color-accent: #ef7d22;
+    --color-accent-strong: #f59a4c;
+    --color-accent-hover: #f8b77e;
+    --color-accent-soft: rgba(239, 125, 34, 0.16);
+    --color-chart-line: #c9d6e8;
 
     /* Buttons: light button on the dark page */
-    --color-primary: #faf9f5;
-    --color-on-primary: #141413;
-    --color-primary-hover: #ffffff;
-    --color-secondary-bg: #2f2e2b;
-    --color-secondary-border: #45443f;
+    --color-primary: #ffffff;
+    --color-on-primary: #0a1f44;
+    --color-primary-hover: #e6edf7;
+    --color-secondary-bg: #11213d;
+    --color-secondary-border: #22365a;
 
-    /* Dark feature panels (call-to-action band, mission card, industry tiles) */
-    --color-band: #2b2a27;
-    --color-on-band: #faf9f5;
-    --color-on-band-muted: #c9c6bb;
-    --color-band-accent: #e8896a;
+    /* Navy feature panels (call-to-action band, mission card, industry band) */
+    --color-band: #0a1f44;
+    --color-on-band: #ffffff;
+    --color-on-band-muted: #c3cfe0;
+    --color-band-accent: #f59a4c;
 
     /* Neutrals */
-    --color-bg: #191918;
-    --color-bg-alt: #1f1e1d;
-    --color-surface: #262624;
-    --color-surface-2: #21201f;
-    --color-border: #3a3936;
-    --color-border-strong: #4a4945;
-    --color-input-border: #7a7870;
-    --color-heading: #faf9f5;
-    --color-text: #d8d5cb;
-    --color-muted: #a8a59c;
+    --color-bg: #050d1c;
+    --color-bg-alt: #071328;
+    --color-surface: #0c1a33;
+    --color-surface-2: #09172d;
+    --color-border: #1a2b48;
+    --color-border-strong: #26395c;
+    --color-input-border: #6f84a3;
+    --color-heading: #f3f6fb;
+    --color-text: #d3dcea;
+    --color-muted: #9fb0c8;
 
     /* Feedback */
     --color-error: #ff8a80;
@@ -156,15 +156,15 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
     --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6), 0 8px 16px -8px rgba(0, 0, 0, 0.4);
-    --header-bg: rgba(25, 25, 24, 0.86);
-    --hero-glow-1: transparent;
-    --hero-glow-2: transparent;
+    --header-bg: rgba(5, 13, 28, 0.86);
+    --hero-glow-1: rgba(20, 52, 110, 0.22);
+    --hero-glow-2: rgba(239, 125, 34, 0.10);
 
-    /* Logo on dark: terracotta tile, ink glyphs, light terracotta "x" */
-    --logo-tile: #d97757;
-    --logo-glyph: #141413;
-    --logo-dot: #141413;
-    --logo-x: #e8896a;
+    /* Logo on dark: orange tile, navy glyphs, light orange "x" */
+    --logo-tile: #ef7d22;
+    --logo-glyph: #0a1f44;
+    --logo-dot: #0a1f44;
+    --logo-x: #f59a4c;
   }
 }
 
@@ -172,37 +172,37 @@
   color-scheme: dark;
 
   /* Brand */
-  --color-ink: #faf9f5;
-  --color-accent: #d97757;
-  --color-accent-strong: #e8896a;
-  --color-accent-hover: #f0a58b;
-  --color-accent-soft: rgba(217, 119, 87, 0.16);
-  --color-chart-line: #d8d5cb;
+  --color-ink: #f3f6fb;
+  --color-accent: #ef7d22;
+  --color-accent-strong: #f59a4c;
+  --color-accent-hover: #f8b77e;
+  --color-accent-soft: rgba(239, 125, 34, 0.16);
+  --color-chart-line: #c9d6e8;
 
   /* Buttons: light button on the dark page */
-  --color-primary: #faf9f5;
-  --color-on-primary: #141413;
-  --color-primary-hover: #ffffff;
-  --color-secondary-bg: #2f2e2b;
-  --color-secondary-border: #45443f;
+  --color-primary: #ffffff;
+  --color-on-primary: #0a1f44;
+  --color-primary-hover: #e6edf7;
+  --color-secondary-bg: #11213d;
+  --color-secondary-border: #22365a;
 
-  /* Dark feature panels (call-to-action band, mission card, industry tiles) */
-  --color-band: #2b2a27;
-  --color-on-band: #faf9f5;
-  --color-on-band-muted: #c9c6bb;
-  --color-band-accent: #e8896a;
+  /* Navy feature panels (call-to-action band, mission card, industry band) */
+  --color-band: #0a1f44;
+  --color-on-band: #ffffff;
+  --color-on-band-muted: #c3cfe0;
+  --color-band-accent: #f59a4c;
 
   /* Neutrals */
-  --color-bg: #191918;
-  --color-bg-alt: #1f1e1d;
-  --color-surface: #262624;
-  --color-surface-2: #21201f;
-  --color-border: #3a3936;
-  --color-border-strong: #4a4945;
-  --color-input-border: #7a7870;
-  --color-heading: #faf9f5;
-  --color-text: #d8d5cb;
-  --color-muted: #a8a59c;
+  --color-bg: #050d1c;
+  --color-bg-alt: #071328;
+  --color-surface: #0c1a33;
+  --color-surface-2: #09172d;
+  --color-border: #1a2b48;
+  --color-border-strong: #26395c;
+  --color-input-border: #6f84a3;
+  --color-heading: #f3f6fb;
+  --color-text: #d3dcea;
+  --color-muted: #9fb0c8;
 
   /* Feedback */
   --color-error: #ff8a80;
@@ -214,15 +214,15 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6), 0 8px 16px -8px rgba(0, 0, 0, 0.4);
-  --header-bg: rgba(25, 25, 24, 0.86);
-  --hero-glow-1: transparent;
-  --hero-glow-2: transparent;
+  --header-bg: rgba(5, 13, 28, 0.86);
+  --hero-glow-1: rgba(20, 52, 110, 0.22);
+  --hero-glow-2: rgba(239, 125, 34, 0.10);
 
-  /* Logo on dark: terracotta tile, ink glyphs, light terracotta "x" */
-  --logo-tile: #d97757;
-  --logo-glyph: #141413;
-  --logo-dot: #141413;
-  --logo-x: #e8896a;
+  /* Logo on dark: orange tile, navy glyphs, light orange "x" */
+  --logo-tile: #ef7d22;
+  --logo-glyph: #0a1f44;
+  --logo-dot: #0a1f44;
+  --logo-x: #f59a4c;
 }
 
 /* --------------------------------------------------------------------------
@@ -270,12 +270,12 @@ h4 {
   color: var(--color-heading);
   font-family: var(--font-heading);
   font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: -0.015em;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
 }
 
-h1 { font-size: var(--fs-hero); font-weight: 400; line-height: 1.04; letter-spacing: -0.028em; }
-h2 { font-size: var(--fs-2xl); font-weight: 400; line-height: 1.08; letter-spacing: -0.022em; }
+h1 { font-size: var(--fs-hero); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; }
+h2 { font-size: var(--fs-2xl); font-weight: 700; line-height: 1.14; letter-spacing: -0.015em; }
 h3 { font-size: var(--fs-lg); }
 h4 { font-size: 1.25rem; }
 
@@ -305,7 +305,7 @@ a:hover { color: var(--color-accent-hover); }
 
 ::selection {
   background: var(--color-accent);
-  color: #141413;
+  color: #0a1f44;
 }
 
 .icon {
@@ -313,6 +313,13 @@ a:hover { color: var(--color-accent-hover); }
   height: 1.25em;
   flex-shrink: 0;
 }
+
+/* Two-tone icons: lines in the text colour (navy), the marked detail in orange */
+.icon .a { stroke: var(--icon-accent, var(--color-accent)); }
+
+/* Inside buttons and arrow links the icon stays one colour */
+.btn .icon .a,
+.link-arrow .icon .a { stroke: currentColor; }
 
 /* Visually hidden but available to screen readers */
 .sr-only {
@@ -432,6 +439,25 @@ a:hover { color: var(--color-accent-hover); }
   .grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
+/* Product cards: any number of cards, with a short last row centred (5 cards = 3 + 2) */
+.grid--products {
+  --gap: clamp(16px, 1rem + 0.8vw, 28px);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap);
+}
+
+.grid--products > li { flex: 0 0 100%; }
+
+@media (min-width: 640px) {
+  .grid--products > li { flex-basis: calc((100% - var(--gap)) / 2); }
+}
+
+@media (min-width: 1024px) {
+  .grid--products > li { flex-basis: calc((100% - 2 * var(--gap)) / 3); }
+}
+
 /* --------------------------------------------------------------------------
    5. Buttons & links
    -------------------------------------------------------------------------- */
@@ -488,15 +514,15 @@ a:hover { color: var(--color-accent-hover); }
 
 /* Buttons on the dark feature panel */
 .btn--light {
-  --btn-bg: #faf9f5;
-  --btn-fg: #141413;
+  --btn-bg: #ffffff;
+  --btn-fg: #0a1f44;
 }
 
-.btn--light:hover { --btn-bg: #ffffff; }
+.btn--light:hover { --btn-bg: #e6edf7; }
 
 .btn--outline-light {
   --btn-fg: var(--color-on-band);
-  --btn-border: rgba(250, 249, 245, 0.4);
+  --btn-border: rgba(255, 255, 255, 0.45);
 }
 
 .btn--outline-light:hover { --btn-border: var(--color-on-band); }
@@ -541,7 +567,7 @@ a:hover { color: var(--color-accent-hover); }
 
 .site-header.is-scrolled {
   border-bottom-color: var(--color-border);
-  box-shadow: 0 6px 24px -20px rgba(20, 20, 19, 0.4);
+  box-shadow: 0 6px 24px -20px rgba(10, 31, 68, 0.4);
 }
 
 .header-inner {
@@ -664,9 +690,10 @@ a:hover { color: var(--color-accent-hover); }
   place-items: center;
   width: 38px;
   height: 38px;
-  border-radius: 10px;
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
+  border: 1.5px solid var(--color-heading);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-heading);
   flex-shrink: 0;
 }
 
@@ -864,7 +891,12 @@ a:hover { color: var(--color-accent-hover); }
 
 .hero h1 { margin-bottom: 20px; }
 
-.text-gradient { color: var(--color-accent-strong); }
+/* Big headline text only needs 3:1, so it can use a brighter orange than body links */
+.text-gradient { color: var(--color-accent-headline, var(--color-accent-strong)); font-weight: 300; }
+:root:not([data-theme="dark"]) { --color-accent-headline: #d9650f; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --color-accent-headline: var(--color-accent-strong); }
+}
 
 .hero .lead { max-width: 540px; margin-bottom: 32px; font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem); }
 
@@ -1028,7 +1060,7 @@ a:hover { color: var(--color-accent-hover); }
 .float-card strong { display: block; color: var(--color-heading); font-family: var(--font-ui); font-size: 12.5px; }
 .float-card small { color: var(--color-muted); font-size: 11px; }
 
-.float-card .dropdown-icon { width: 32px; height: 32px; border-radius: 9px; }
+.float-card .dropdown-icon { width: 32px; height: 32px; }
 .float-card .dropdown-icon .icon { width: 17px; height: 17px; }
 
 .float-card--a { left: -18px; bottom: 56px; }
@@ -1079,7 +1111,7 @@ a:hover { color: var(--color-accent-hover); }
   font-weight: 400;
 }
 
-.trust-item .icon { width: 26px; height: 26px; color: var(--color-accent-strong); }
+.trust-item .icon { width: 26px; height: 26px; color: var(--color-heading); }
 
 @media (min-width: 900px) {
   .trust-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -1116,19 +1148,25 @@ a:hover { color: var(--color-accent-hover); }
 .card-icon {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 22px;
-  border-radius: 14px;
-  background: var(--color-accent-soft);
-  color: var(--color-accent-strong);
+  width: 56px;
+  height: 56px;
+  margin: 4px 0 26px 4px;
+  /* Round badge: navy ring, then a thin orange ring just outside it */
+  border: 2px solid var(--color-heading);
+  border-radius: 50%;
+  outline: 1.5px solid var(--color-accent);
+  outline-offset: 3px;
+  background: var(--color-surface);
+  color: var(--color-heading);
 }
 
 .card-icon .icon { width: 26px; height: 26px; }
 
 .card-icon--ink {
+  border-color: var(--color-band-accent);
   background: var(--color-band);
-  color: var(--color-band-accent);
+  color: var(--color-on-band);
+  --icon-accent: var(--color-band-accent);
 }
 
 .card .link-arrow { margin-top: auto; padding-top: 18px; }
@@ -1158,31 +1196,154 @@ a:hover { color: var(--color-accent-hover); }
   padding: 8px 0;
 }
 
-.benefit .card-icon { width: 46px; height: 46px; margin: 0; border-radius: 12px; }
+.benefit .card-icon { width: 46px; height: 46px; margin: 4px; flex-shrink: 0; }
 .benefit .card-icon .icon { width: 22px; height: 22px; }
 .benefit h3 { font-size: 1.375rem; margin-bottom: 6px; }
 .benefit p { color: var(--color-muted); margin: 0; }
 
-/* Industries */
-.industry {
-  overflow: hidden;
-  padding: 0;
+/* Angled section edges (components/SlantDivider.jsx) */
+.slant {
+  position: relative;
+  z-index: 1;
+  height: clamp(36px, 2rem + 4vw, 96px);
+  margin-block: -1px; /* overlap both neighbours so no hairline gap shows */
+  line-height: 0;
 }
 
-.industry-top {
+.slant svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+.slant-line {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.section--slanted {
+  border-block: 0;
+  padding-block: clamp(2.5rem, 2rem + 2.5vw, 5rem);
+}
+
+/* Dark band section */
+.section--band {
+  background: var(--color-band);
+  color: var(--color-on-band-muted);
+}
+
+.section--band h2,
+.section--band h3 { color: var(--color-on-band); }
+.section--band .lead,
+.section--band p { color: var(--color-on-band-muted); }
+.section--band .eyebrow { color: var(--color-band-accent); }
+
+/* Stat circles beside "Why Intelyx" */
+.why-intro { margin-bottom: clamp(2.5rem, 2rem + 2vw, 4rem); }
+.why-intro .section-header { margin-bottom: 2rem; }
+
+.stat-circles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-items: center;
+  gap: 16px;
+  list-style: none;
+}
+
+.stat-circle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  aspect-ratio: 1;
+  padding: 14px;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.stat-circle strong {
+  color: var(--color-heading);
+  font-family: var(--font-heading);
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-circle span {
+  margin-top: 4px;
+  color: var(--color-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .stat-circles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .why-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 48px;
+  }
+  .why-intro .section-header { margin-bottom: 0; }
+  .stat-circles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
+  .stat-circle:nth-child(even) { transform: translateY(28px); }
+}
+
+@media (min-width: 1200px) {
+  .stat-circles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .stat-circle:nth-child(even) { transform: translateY(24px); }
+}
+
+/* Industries: round badges with the name around the rim (components/RingBadge.jsx) */
+.industry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.industry h3 { margin: 22px 0 8px; font-size: 1.5rem; font-weight: 300; }
+.industry p { margin: 0; max-width: 30ch; font-size: var(--fs-sm); }
+
+.ring-badge {
   position: relative;
+  width: min(196px, 70vw);
+  aspect-ratio: 1;
+  transition: transform 0.4s var(--ease);
+}
+
+.industry:hover .ring-badge { transform: rotate(-8deg); }
+
+.ring-badge-rim { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.ring-badge-edge { fill: none; stroke: var(--color-band-accent); stroke-width: 1.5; }
+
+.ring-badge-text {
+  fill: var(--color-on-band);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.ring-badge-dot { fill: var(--color-band-accent); }
+
+.ring-badge-core {
+  position: absolute;
+  inset: 22%;
   display: grid;
   place-items: center;
-  height: 132px;
-  background: var(--color-band);
-  color: var(--color-band-accent);
+  border-radius: 50%;
+  background: var(--color-on-band);
+  color: #0a1f44; /* navy lines with orange details: the core is white in both themes */
+  --icon-accent: #e0701a;
 }
 
-.industry-top .icon { width: 44px; height: 44px; stroke-width: 1.4; }
-
-.industry-body { padding: 22px 24px 26px; }
-.industry-body h3 { font-size: 1.375rem; }
-.industry-body p { font-size: var(--fs-sm); }
+.ring-badge-core .icon { width: 44%; height: 44%; stroke-width: 1.5; }
 
 /* CTA band */
 .cta-band {
@@ -1190,9 +1351,10 @@ a:hover { color: var(--color-accent-hover); }
   overflow: hidden;
   padding: clamp(40px, 2rem + 3vw, 72px);
   border-radius: calc(var(--radius-lg) + 6px);
-  /* Near-black panel with one soft terracotta glow, like a lit window */
+  /* Navy panel with a soft blue glow and an orange one, two-tone like the theme */
   background:
-    radial-gradient(45% 90% at 100% 0%, rgba(217, 119, 87, 0.28), transparent 65%),
+    radial-gradient(45% 90% at 100% 0%, rgba(239, 125, 34, 0.30), transparent 65%),
+    radial-gradient(60% 120% at 0% 100%, rgba(20, 52, 110, 0.45), transparent 70%),
     var(--color-band);
   border: 1px solid transparent;
   color: var(--color-on-band-muted);
@@ -1273,7 +1435,7 @@ a:hover { color: var(--color-accent-hover); }
 }
 
 .pill-nav a:hover { border-color: var(--color-accent-strong); transform: translateY(-1px); }
-.pill-nav .icon { width: 18px; height: 18px; color: var(--color-accent-strong); }
+.pill-nav .icon { width: 18px; height: 18px; color: var(--color-heading); }
 
 /* --------------------------------------------------------------------------
    9. Products page
@@ -1296,7 +1458,7 @@ a:hover { color: var(--color-accent-hover); }
 }
 
 .product-title { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
-.product-title .card-icon { margin: 0; width: 60px; height: 60px; border-radius: 16px; }
+.product-title .card-icon { margin: 4px; width: 60px; height: 60px; flex-shrink: 0; }
 .product-title .card-icon .icon { width: 30px; height: 30px; }
 .product-title h2 { margin: 0; }
 .product-title .eyebrow { margin-bottom: 4px; }
@@ -1322,7 +1484,7 @@ a:hover { color: var(--color-accent-hover); }
   letter-spacing: 0;
 }
 
-.who-for h3 .icon { width: 18px; height: 18px; color: var(--color-accent-strong); }
+.who-for h3 .icon { width: 18px; height: 18px; color: var(--color-heading); }
 .who-for p { margin-bottom: 18px; color: var(--color-text); }
 
 .feature-grid { list-style: none; }
@@ -1358,7 +1520,7 @@ a:hover { color: var(--color-accent-hover); }
   font-size: var(--fs-sm);
 }
 
-.product-who .icon { flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; color: var(--color-accent-strong); }
+.product-who .icon { flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; color: var(--color-heading); }
 .product-who strong { color: var(--color-heading); }
 
 .product-screens { display: grid; gap: clamp(2.5rem, 2rem + 2vw, 4rem); }
@@ -1437,8 +1599,8 @@ a:hover { color: var(--color-accent-hover); }
   color: var(--color-heading);
   font-family: var(--font-heading);
   font-size: var(--fs-xl);
-  font-weight: 500;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
@@ -1455,8 +1617,8 @@ a:hover { color: var(--color-accent-hover); }
   color: var(--color-heading);
   font-family: var(--font-heading);
   font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem);
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 300;
+  letter-spacing: 0;
   line-height: 1.4;
 }
 
@@ -1963,8 +2125,8 @@ fieldset.field legend { margin-bottom: 8px; }
   margin-bottom: 8px;
   font-family: var(--font-heading);
   font-size: clamp(5rem, 3rem + 10vw, 9rem);
-  font-weight: 400;
-  letter-spacing: -0.06em;
+  font-weight: 900;
+  letter-spacing: -0.04em;
   line-height: 1;
 }
 
@@ -2020,7 +2182,7 @@ fieldset.field legend { margin-bottom: 8px; }
 .footer-links a:hover { color: var(--color-heading); text-decoration: underline; }
 
 .footer-contact li { display: flex; gap: 10px; align-items: flex-start; }
-.footer-contact .icon { width: 18px; height: 18px; margin-top: 3px; color: var(--color-accent-strong); }
+.footer-contact .icon { width: 18px; height: 18px; margin-top: 3px; color: var(--color-heading); }
 .footer-contact span { color: var(--color-muted); }
 
 .social { display: flex; gap: 10px; margin-top: 24px; list-style: none; }
@@ -2108,6 +2270,7 @@ body.nav-open .whatsapp-fab { display: none; }
 
   .js .reveal { opacity: 1; transform: none; }
   .float-card { animation: none; }
+  .industry:hover .ring-badge { transform: none; }
 }
 
 /* Print: keep it simple */

@@ -8,6 +8,7 @@ export const PRODUCTS = {
   'schools-erp': 'Schools ERP',
   'hospitals-erp': 'Hospitals ERP',
   accounting: 'Accounting Software',
+  hrms: 'HRMS Software',
   'service-booking': 'Service Booking Software',
   other: 'Other / Not sure',
 };

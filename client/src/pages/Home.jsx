@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import CtaBand from '../components/CtaBand.jsx';
 import { Icon } from '../components/Icon.jsx';
+import RingBadge from '../components/RingBadge.jsx';
+import SlantDivider from '../components/SlantDivider.jsx';
 import { PRODUCTS } from '../data/products.js';
 import { productPath } from '../data/seo.js';
 import { useSeo } from '../hooks/useSeo.js';
@@ -28,6 +30,14 @@ const INDUSTRIES = [
   { icon: 'stethoscope', title: 'Healthcare', text: 'Hospitals, clinics and diagnostic centres that need fast, accurate patient workflows.' },
   { icon: 'store', title: 'Retail and SMEs', text: 'Shops, restaurants, hotels and traders who want clear books and GST-ready billing.' },
   { icon: 'wrench', title: 'Service businesses', text: 'Salons, spas, studios, consultants and repair services that live by their calendar.' },
+];
+
+// Shown as circles beside "Why Intelyx". Keep every figure true.
+const STATS = [
+  { value: String(PRODUCTS.length), label: 'Focused products' },
+  { value: String(INDUSTRIES.length), label: 'Industries served' },
+  { value: '1 day', label: 'Reply to every enquiry' },
+  { value: '100%', label: 'Made in India' },
 ];
 
 // ---- Hero dashboard illustration (decorative) ------------------------------
@@ -93,7 +103,7 @@ export default function Home() {
               Intelligent software for the way you <span className="text-gradient">run your business.</span>
             </h1>
             <p className="lead">
-              ERP, accounting and booking software for schools, hospitals, SMEs and service providers. Simple to use,
+              ERP, accounting, HR and booking software for schools, hospitals, SMEs and service providers. Simple to use,
               secure by design, and backed by a local team.
             </p>
             <div className="hero-actions">
@@ -132,9 +142,9 @@ export default function Home() {
           <div className="section-header section-header--center reveal">
             <p className="eyebrow">Our products</p>
             <h2 id="products-title">One partner for the software that runs your day</h2>
-            <p className="lead">Four focused products, each designed around the real work of the people who use it.</p>
+            <p className="lead">Five focused products, each designed around the real work of the people who use it.</p>
           </div>
-          <ul className="grid grid--4" role="list">
+          <ul className="grid grid--products" role="list">
             {PRODUCTS.map((p, i) => (
               <li className="reveal" key={p.id}>
                 <article className="card card--hover product-card">
@@ -153,12 +163,23 @@ export default function Home() {
       </section>
 
       {/* Why Intelyx */}
-      <section className="section section--alt" aria-labelledby="why-title">
+      <SlantDivider from="bg" to="alt" rise />
+      <section className="section section--alt section--slanted" aria-labelledby="why-title">
         <div className="container">
-          <div className="section-header reveal">
-            <p className="eyebrow">Why Intelyx</p>
-            <h2 id="why-title">Software you can depend on, from a team you can reach</h2>
-            <p className="lead">We focus on the things that make a difference every working day: speed, clarity, security and support.</p>
+          <div className="why-intro">
+            <div className="section-header reveal">
+              <p className="eyebrow">Why Intelyx</p>
+              <h2 id="why-title">Software you can depend on, from a team you can reach</h2>
+              <p className="lead">We focus on the things that make a difference every working day: speed, clarity, security and support.</p>
+            </div>
+            <ul className="stat-circles reveal" role="list">
+              {STATS.map((s) => (
+                <li className="stat-circle" key={s.label}>
+                  <strong>{s.value}</strong>
+                  <span>{s.label}</span>
+                </li>
+              ))}
+            </ul>
           </div>
           <ul className="grid grid--3" role="list">
             {BENEFITS.map((b) => (
@@ -175,7 +196,8 @@ export default function Home() {
       </section>
 
       {/* Industries */}
-      <section className="section" aria-labelledby="industries-title">
+      <SlantDivider from="alt" to="band" />
+      <section className="section section--band section--slanted" aria-labelledby="industries-title">
         <div className="container">
           <div className="section-header section-header--center reveal">
             <p className="eyebrow">Industries we serve</p>
@@ -185,18 +207,17 @@ export default function Home() {
           <ul className="grid grid--4" role="list">
             {INDUSTRIES.map((x) => (
               <li className="reveal" key={x.title}>
-                <article className="card card--hover industry">
-                  <div className="industry-top"><Icon name={x.icon} /></div>
-                  <div className="industry-body">
-                    <h3>{x.title}</h3>
-                    <p>{x.text}</p>
-                  </div>
+                <article className="industry">
+                  <RingBadge id={x.icon} icon={x.icon} label={x.title} />
+                  <h3>{x.title}</h3>
+                  <p>{x.text}</p>
                 </article>
               </li>
             ))}
           </ul>
         </div>
       </section>
+      <SlantDivider from="band" to="bg" rise />
 
       <CtaBand />
     </>

@@ -128,7 +128,7 @@ function ProductContent({ product: p }) {
             <p className="eyebrow">More from Intelyx</p>
             <h2 id="more-title">Explore our other products</h2>
           </div>
-          <ul className="grid grid--3" role="list">
+          <ul className="grid grid--products" role="list">
             {others.map((o) => (
               <li className="reveal" key={o.id}>
                 <article className="card card--hover product-card">

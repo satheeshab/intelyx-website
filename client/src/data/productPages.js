@@ -144,6 +144,52 @@ export const PRODUCT_PAGES = {
     ],
   },
 
+  hrms: {
+    seoTitle: 'HRMS Software for SMEs: HR, Attendance and Payroll | Intelyx',
+    seoDescription:
+      'Intelyx HRMS for SMEs: employee records, attendance, leave, payroll with PF/ESI/TDS, training, performance and a self-service app. Built in Bengaluru. Book a free demo.',
+    headline: 'HR and payroll software that grows with your team',
+    screens: [
+      {
+        title: 'Payroll done in an afternoon',
+        caption: 'Attendance and leave flow straight into payroll. Check the run, release payslips and download the bank file in a few clicks.',
+        url: 'app.intelyx.co.in/payroll',
+        heading: 'Payroll, October',
+        tag: 'Ready',
+        kpis: [['Net pay', '₹28.4L', '142 employees'], ['PF and ESI', '₹3.1L', 'Calculated'], ['Payslips', '142', 'Ready to send']],
+        chart: [62, 64, 66, 65, 70, 72, 75, 78],
+        rows: [['Bank transfer file, HDFC', 'Generated', 'ok'], ['TDS, 3 employees need declarations', 'Pending', 'warn']],
+      },
+      {
+        title: 'Attendance and leave in one view',
+        caption: 'See who is in, on leave or late across every location, and approve leave requests without email chains.',
+        url: 'app.intelyx.co.in/attendance',
+        heading: 'Attendance',
+        tag: 'Today',
+        kpis: [['Present', '128', 'of 142'], ['On leave', '9', '3 to approve'], ['Late marks', '5', '▼ 2 vs last week']],
+        rows: [['Ritu Nair, Casual leave, 2 days', 'Awaiting approval', 'warn'], ['Vikram Das, Checked in 9:02 AM', 'Present', 'ok'], ['Sana Qureshi, Work from home', 'Approved', 'info']],
+      },
+      {
+        title: 'Training that gets tracked',
+        caption: 'Schedule sessions, assign courses to teams and see completion and certifications for every employee.',
+        url: 'app.intelyx.co.in/learning',
+        heading: 'Training and learning',
+        tag: 'This quarter',
+        kpis: [['Courses', '18', 'Active'], ['Completion', '86%', '▲ 12%'], ['Certifications', '41', 'Earned']],
+        rows: [['Fire safety refresher, Plant team', 'Completed', 'ok'], ['POSH awareness, All staff', '72% done', 'info'], ['Excel for managers', 'Starts 18 Nov', 'warn']],
+      },
+    ],
+    faqs: [
+      { q: 'Which statutory deductions does Intelyx HRMS handle?', a: 'PF, ESI, professional tax, labour welfare fund and TDS are calculated during payroll, with the reports and challan details you need for filing, plus Form 16 for employees.' },
+      { q: 'Can it work with our biometric attendance machines?', a: 'Yes. Attendance can come from biometric devices, web check-in or the mobile app with location, and it flows straight into leave and payroll.' },
+      { q: 'Can we set up our own leave policies?', a: 'Yes. You can define leave types, accruals, carry-forward rules, holiday calendars and approval steps for each location or employee group.' },
+      { q: 'How does training and learning management work?', a: 'HR can plan a training calendar, assign courses or sessions to teams, record attendance and completion, and keep each employee\'s certifications and skills on their profile.' },
+      { q: 'Do employees get their own access?', a: 'Yes. Through the self-service app and portal, employees can check in, apply for leave, claim expenses, download payslips and update their details. Each person sees only what their role allows.' },
+      { q: 'Is it suitable for a small company?', a: 'Yes. It is built for SMEs from about 10 employees upwards. You can start with the modules you need, such as attendance, leave and payroll, and add training, performance or recruitment as you grow.' },
+      { q: 'Can we bring in our existing employee and salary data?', a: 'Yes. As part of onboarding we import employee records, salary structures and leave balances from spreadsheets or your current software.' },
+    ],
+  },
+
   'service-booking': {
     seoTitle: 'Online Booking Software for Salons, Clinics and Services | Intelyx',
     seoDescription:
