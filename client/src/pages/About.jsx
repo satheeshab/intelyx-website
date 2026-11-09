@@ -1,15 +1,19 @@
 import CtaBand from '../components/CtaBand.jsx';
 import { Icon } from '../components/Icon.jsx';
 import PageHero from '../components/PageHero.jsx';
+import RingBadge from '../components/RingBadge.jsx';
+import SlantDivider from '../components/SlantDivider.jsx';
+import { PRODUCTS } from '../data/products.js';
 import { useSeo } from '../hooks/useSeo.js';
 
 // ---- Copy lives here: edit the text below ----------------------------------
 
+// Shown as round badges beside "Who we are". The product count follows data/products.js.
 const STATS = [
-  { value: '4', label: 'Focused products' },
-  { value: '100%', label: 'Cloud-based, no servers to manage' },
-  { value: '1 day', label: 'Typical response time for enquiries' },
-  { value: 'BLR', label: 'Designed, built and supported in Bengaluru' },
+  { icon: 'layers', value: String(PRODUCTS.length), label: 'Focused products' },
+  { icon: 'cloud', value: '100%', label: 'Cloud-based, no servers to manage' },
+  { icon: 'clock', value: '1 day', label: 'Typical reply to enquiries' },
+  { icon: 'map-pin', value: 'BLR', label: 'Built and supported in Bengaluru' },
 ];
 
 const VALUES = [
@@ -54,11 +58,15 @@ export default function About() {
             <p><strong>Intelyx exists to change that.</strong> We design focused products that replace manual work with one clear system: fewer steps, accurate records and information you can act on.</p>
             <p>We work closely with every customer, from the first demo to go-live and beyond, because good software is only half the job. The other half is helping people use it well.</p>
           </div>
-          <div className="stat-grid reveal">
+          <ul className="stat-badges reveal" role="list">
             {STATS.map((s) => (
-              <div className="stat" key={s.label}><strong>{s.value}</strong><span>{s.label}</span></div>
+              <li className="stat-badge" key={s.label}>
+                <span className="stat-badge-icon"><Icon name={s.icon} /></span>
+                <strong>{s.value}</strong>
+                <span>{s.label}</span>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
@@ -68,10 +76,12 @@ export default function About() {
           <h2 id="mv-title" className="sr-only">Mission and vision</h2>
           <div className="grid grid--2">
             <article className="card statement statement--dark reveal">
+              <div className="card-icon card-icon--ink"><Icon name="target" /></div>
               <p className="eyebrow">Our mission</p>
               <blockquote>To give every institution and growing business software that is simple to use, dependable every day and priced within reach, so they spend less time on paperwork and more time on the people they serve.</blockquote>
             </article>
             <article className="card statement reveal">
+              <div className="card-icon"><Icon name="eye" /></div>
               <p className="eyebrow">Our vision</p>
               <blockquote>To be India's most trusted partner for everyday business software, known for products that just work and a team that truly listens.</blockquote>
             </article>
@@ -80,7 +90,8 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="section" aria-labelledby="values-title">
+      <SlantDivider from="alt" to="band" />
+      <section className="section section--band section--slanted" aria-labelledby="values-title">
         <div className="container">
           <div className="section-header section-header--center reveal">
             <p className="eyebrow">Our values</p>
@@ -89,8 +100,8 @@ export default function About() {
           <ul className="grid grid--4" role="list">
             {VALUES.map((v) => (
               <li className="reveal" key={v.title}>
-                <article className="card card--hover">
-                  <div className="card-icon"><Icon name={v.icon} /></div>
+                <article className="industry">
+                  <RingBadge id={`value-${v.icon}`} icon={v.icon} label={v.title} />
                   <h3>{v.title}</h3>
                   <p>{v.text}</p>
                 </article>
@@ -99,9 +110,10 @@ export default function About() {
           </ul>
         </div>
       </section>
+      <SlantDivider from="band" to="alt" rise />
 
       {/* What sets us apart */}
-      <section className="section section--alt" aria-labelledby="apart-title">
+      <section className="section section--alt section--slanted" aria-labelledby="apart-title">
         <div className="container">
           <div className="section-header reveal">
             <p className="eyebrow">What sets us apart</p>
@@ -130,8 +142,9 @@ export default function About() {
             <h2 id="journey-title">Milestones so far</h2>
           </div>
           <ol className="timeline">
-            {MILESTONES.map((m) => (
+            {MILESTONES.map((m, i) => (
               <li className="timeline-item reveal" key={m.title}>
+                <span className="timeline-badge" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                 <span className="timeline-year">{m.year}</span>
                 <h3>{m.title}</h3>
                 <p>{m.text}</p>
