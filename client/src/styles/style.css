@@ -45,6 +45,13 @@
   --color-on-band: #ffffff;
   --color-on-band-muted: #c3cfe0;
   --color-band-accent: #f59a4c;
+  /* Light button on navy panels, and the centre of the round industry badges */
+  --btn-light-bg: #ffffff;
+  --btn-light-fg: #0a1f44;
+  --btn-light-hover: #e6edf7;
+  --badge-core-bg: #ffffff;
+  --badge-core-fg: #0a1f44;
+  --badge-core-accent: #e0701a;
 
   /* Neutrals */
   --color-bg: #f6f8fb;
@@ -114,37 +121,44 @@
     color-scheme: dark;
 
     /* Brand */
-    --color-ink: #f3f6fb;
-    --color-accent: #ef7d22;
-    --color-accent-strong: #f59a4c;
-    --color-accent-hover: #f8b77e;
-    --color-accent-soft: rgba(239, 125, 34, 0.16);
-    --color-chart-line: #c9d6e8;
+    --color-ink: #e6ecf5;
+    --color-accent: #f0a05a;
+    --color-accent-strong: #f5b47a;
+    --color-accent-hover: #f8c89d;
+    --color-accent-soft: rgba(240, 160, 90, 0.14);
+    --color-chart-line: #8fa8cc;
 
-    /* Buttons: light button on the dark page */
-    --color-primary: #ffffff;
-    --color-on-primary: #0a1f44;
-    --color-primary-hover: #e6edf7;
-    --color-secondary-bg: #11213d;
-    --color-secondary-border: #22365a;
+    /* Buttons: warm orange on the dark page (softer than white) */
+    --color-primary: #f0a05a;
+    --color-on-primary: #10192b;
+    --color-primary-hover: #f5b47a;
+    --color-secondary-bg: #1c2a42;
+    --color-secondary-border: #2d3f5e;
 
     /* Navy feature panels (call-to-action band, mission card, industry band) */
-    --color-band: #0a1f44;
-    --color-on-band: #ffffff;
-    --color-on-band-muted: #c3cfe0;
-    --color-band-accent: #f59a4c;
+    --color-band: #16294a;
+    --color-on-band: #eef2f8;
+    --color-on-band-muted: #b6c3d8;
+    --color-band-accent: #f5b47a;
+    /* On dark, panel buttons turn orange and badge centres stay dark (no glare) */
+    --btn-light-bg: #f0a05a;
+    --btn-light-fg: #10192b;
+    --btn-light-hover: #f5b47a;
+    --badge-core-bg: #22324f;
+    --badge-core-fg: #e6ecf5;
+    --badge-core-accent: #f5b47a;
 
     /* Neutrals */
-    --color-bg: #050d1c;
-    --color-bg-alt: #071328;
-    --color-surface: #0c1a33;
-    --color-surface-2: #09172d;
-    --color-border: #1a2b48;
-    --color-border-strong: #26395c;
-    --color-input-border: #6f84a3;
-    --color-heading: #f3f6fb;
-    --color-text: #d3dcea;
-    --color-muted: #9fb0c8;
+    --color-bg: #0f1829;
+    --color-bg-alt: #131e33;
+    --color-surface: #18253d;
+    --color-surface-2: #152238;
+    --color-border: #263652;
+    --color-border-strong: #34476a;
+    --color-input-border: #6d7f9c;
+    --color-heading: #e6ecf5;
+    --color-text: #c2cddd;
+    --color-muted: #93a2b9;
 
     /* Feedback */
     --color-error: #ff8a80;
@@ -153,18 +167,18 @@
     --color-success-soft: rgba(110, 231, 183, 0.12);
 
     /* Effects */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6), 0 8px 16px -8px rgba(0, 0, 0, 0.4);
-    --header-bg: rgba(5, 13, 28, 0.86);
-    --hero-glow-1: rgba(20, 52, 110, 0.22);
-    --hero-glow-2: rgba(239, 125, 34, 0.10);
+    --shadow-sm: 0 1px 2px rgba(3, 8, 18, 0.35);
+    --shadow-md: 0 6px 18px rgba(3, 8, 18, 0.35);
+    --shadow-lg: 0 24px 48px -16px rgba(3, 8, 18, 0.55), 0 8px 16px -8px rgba(3, 8, 18, 0.35);
+    --header-bg: rgba(15, 24, 41, 0.82);
+    --hero-glow-1: rgba(79, 131, 214, 0.16);
+    --hero-glow-2: rgba(240, 160, 90, 0.10);
 
-    /* Logo on dark: orange tile, navy glyphs, light orange "x" */
-    --logo-tile: #ef7d22;
-    --logo-glyph: #0a1f44;
-    --logo-dot: #0a1f44;
-    --logo-x: #f59a4c;
+    /* Logo on dark: soft orange tile, navy glyphs, light orange "x" */
+    --logo-tile: #f0a05a;
+    --logo-glyph: #10192b;
+    --logo-dot: #10192b;
+    --logo-x: #f5b47a;
   }
 }
 
@@ -172,37 +186,44 @@
   color-scheme: dark;
 
   /* Brand */
-  --color-ink: #f3f6fb;
-  --color-accent: #ef7d22;
-  --color-accent-strong: #f59a4c;
-  --color-accent-hover: #f8b77e;
-  --color-accent-soft: rgba(239, 125, 34, 0.16);
-  --color-chart-line: #c9d6e8;
+  --color-ink: #e6ecf5;
+  --color-accent: #f0a05a;
+  --color-accent-strong: #f5b47a;
+  --color-accent-hover: #f8c89d;
+  --color-accent-soft: rgba(240, 160, 90, 0.14);
+  --color-chart-line: #8fa8cc;
 
-  /* Buttons: light button on the dark page */
-  --color-primary: #ffffff;
-  --color-on-primary: #0a1f44;
-  --color-primary-hover: #e6edf7;
-  --color-secondary-bg: #11213d;
-  --color-secondary-border: #22365a;
+  /* Buttons: warm orange on the dark page (softer than white) */
+  --color-primary: #f0a05a;
+  --color-on-primary: #10192b;
+  --color-primary-hover: #f5b47a;
+  --color-secondary-bg: #1c2a42;
+  --color-secondary-border: #2d3f5e;
 
   /* Navy feature panels (call-to-action band, mission card, industry band) */
-  --color-band: #0a1f44;
-  --color-on-band: #ffffff;
-  --color-on-band-muted: #c3cfe0;
-  --color-band-accent: #f59a4c;
+  --color-band: #16294a;
+  --color-on-band: #eef2f8;
+  --color-on-band-muted: #b6c3d8;
+  --color-band-accent: #f5b47a;
+  /* On dark, panel buttons turn orange and badge centres stay dark (no glare) */
+  --btn-light-bg: #f0a05a;
+  --btn-light-fg: #10192b;
+  --btn-light-hover: #f5b47a;
+  --badge-core-bg: #22324f;
+  --badge-core-fg: #e6ecf5;
+  --badge-core-accent: #f5b47a;
 
   /* Neutrals */
-  --color-bg: #050d1c;
-  --color-bg-alt: #071328;
-  --color-surface: #0c1a33;
-  --color-surface-2: #09172d;
-  --color-border: #1a2b48;
-  --color-border-strong: #26395c;
-  --color-input-border: #6f84a3;
-  --color-heading: #f3f6fb;
-  --color-text: #d3dcea;
-  --color-muted: #9fb0c8;
+  --color-bg: #0f1829;
+  --color-bg-alt: #131e33;
+  --color-surface: #18253d;
+  --color-surface-2: #152238;
+  --color-border: #263652;
+  --color-border-strong: #34476a;
+  --color-input-border: #6d7f9c;
+  --color-heading: #e6ecf5;
+  --color-text: #c2cddd;
+  --color-muted: #93a2b9;
 
   /* Feedback */
   --color-error: #ff8a80;
@@ -211,18 +232,18 @@
   --color-success-soft: rgba(110, 231, 183, 0.12);
 
   /* Effects */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.6), 0 8px 16px -8px rgba(0, 0, 0, 0.4);
-  --header-bg: rgba(5, 13, 28, 0.86);
-  --hero-glow-1: rgba(20, 52, 110, 0.22);
-  --hero-glow-2: rgba(239, 125, 34, 0.10);
+  --shadow-sm: 0 1px 2px rgba(3, 8, 18, 0.35);
+  --shadow-md: 0 6px 18px rgba(3, 8, 18, 0.35);
+  --shadow-lg: 0 24px 48px -16px rgba(3, 8, 18, 0.55), 0 8px 16px -8px rgba(3, 8, 18, 0.35);
+  --header-bg: rgba(15, 24, 41, 0.82);
+  --hero-glow-1: rgba(79, 131, 214, 0.16);
+  --hero-glow-2: rgba(240, 160, 90, 0.10);
 
-  /* Logo on dark: orange tile, navy glyphs, light orange "x" */
-  --logo-tile: #ef7d22;
-  --logo-glyph: #0a1f44;
-  --logo-dot: #0a1f44;
-  --logo-x: #f59a4c;
+  /* Logo on dark: soft orange tile, navy glyphs, light orange "x" */
+  --logo-tile: #f0a05a;
+  --logo-glyph: #10192b;
+  --logo-dot: #10192b;
+  --logo-x: #f5b47a;
 }
 
 /* --------------------------------------------------------------------------
@@ -514,11 +535,11 @@ a:hover { color: var(--color-accent-hover); }
 
 /* Buttons on the dark feature panel */
 .btn--light {
-  --btn-bg: #ffffff;
-  --btn-fg: #0a1f44;
+  --btn-bg: var(--btn-light-bg);
+  --btn-fg: var(--btn-light-fg);
 }
 
-.btn--light:hover { --btn-bg: #e6edf7; }
+.btn--light:hover { --btn-bg: var(--btn-light-hover); }
 
 .btn--outline-light {
   --btn-fg: var(--color-on-band);
@@ -1338,9 +1359,9 @@ a:hover { color: var(--color-accent-hover); }
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--color-on-band);
-  color: #0a1f44; /* navy lines with orange details: the core is white in both themes */
-  --icon-accent: #e0701a;
+  background: var(--badge-core-bg);
+  color: var(--badge-core-fg); /* navy lines with orange details on white; light lines on dark */
+  --icon-accent: var(--badge-core-accent);
 }
 
 .ring-badge-core .icon { width: 44%; height: 44%; stroke-width: 1.5; }
