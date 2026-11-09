@@ -24,6 +24,13 @@ export const PRODUCTS = [
     "card": "GST-ready accounting, invoicing and financial reports that keep your books clear and current."
   },
   {
+    "id": "hrms",
+    "name": "HRMS Software",
+    "icon": "users",
+    "short": "Employees, attendance, leave, payroll and training.",
+    "card": "Employee records, attendance, leave, payroll, compliance and training for growing SMEs, in one HR system."
+  },
+  {
     "id": "service-booking",
     "name": "Service Booking Software",
     "icon": "calendar-check",
@@ -171,6 +178,73 @@ export const PRODUCT_DETAILS = {
         "icon": "lock",
         "title": "Multi-user access with roles",
         "text": "Give your accountant, staff and partners exactly the access they need, and no more."
+      }
+    ]
+  },
+  "hrms": {
+    "eyebrow": "For SMEs",
+    "overview": "Run HR for your whole team from one place. Intelyx HRMS brings employee records, attendance, leave, payroll, statutory compliance and training together, so your HR team spends less time on spreadsheets and your employees get quick, accurate answers.",
+    "who": "Small and medium enterprises with 10 to 1,000 employees, across offices, shops, factories and field teams.",
+    "features": [
+      {
+        "icon": "user",
+        "title": "Employee data management",
+        "text": "One secure profile for every employee: personal and job details, documents, bank details, reporting lines and full employment history."
+      },
+      {
+        "icon": "clock",
+        "title": "Attendance and shifts",
+        "text": "Biometric, web and mobile check-in with location, shift and roster planning, overtime and late-mark rules."
+      },
+      {
+        "icon": "calendar",
+        "title": "Leave management",
+        "text": "Your leave policies, accruals and holiday calendars, with online requests, manager approvals and live balances."
+      },
+      {
+        "icon": "rupee",
+        "title": "Payroll processing",
+        "text": "Flexible salary structures, arrears, loans and deductions, payslips in one click and bank transfer files ready to upload."
+      },
+      {
+        "icon": "shield",
+        "title": "Statutory compliance",
+        "text": "PF, ESI, professional tax, LWF and TDS worked out automatically, with Form 16 and challan-ready reports."
+      },
+      {
+        "icon": "graduation",
+        "title": "Training and learning",
+        "text": "Plan training calendars, assign courses, track attendance and completion, record certifications and spot skill gaps."
+      },
+      {
+        "icon": "briefcase",
+        "title": "Recruitment and onboarding",
+        "text": "Job openings, a candidate pipeline and interview feedback, then offer letters and onboarding checklists for new joiners."
+      },
+      {
+        "icon": "target",
+        "title": "Performance management",
+        "text": "Goals and KRAs, regular check-ins, self and manager reviews, and appraisal cycles linked to salary revisions."
+      },
+      {
+        "icon": "smartphone",
+        "title": "Employee self-service app",
+        "text": "Employees check in, apply for leave, download payslips and update their details from their phone."
+      },
+      {
+        "icon": "receipt",
+        "title": "Expenses and reimbursements",
+        "text": "Claims with photos of bills, approval workflows and approved amounts paid out with payroll."
+      },
+      {
+        "icon": "file-text",
+        "title": "Exit management",
+        "text": "Resignations, notice periods, clearance from each department, asset returns and full and final settlement."
+      },
+      {
+        "icon": "chart",
+        "title": "HR analytics and reports",
+        "text": "Headcount, attrition, attendance trends and payroll costs by team or location, ready to export."
       }
     ]
   },

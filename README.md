@@ -182,7 +182,7 @@ Browser (React form) ── POST /api/enquiry (JSON) ──► Node server ─�
 ```
 
 - **Pre-fill:** `/contact?product=hospitals-erp&type=demo#enquiry` selects the product and
-  "Request a Demo". Product ids: `schools-erp`, `hospitals-erp`, `accounting`, `service-booking`, `other`.
+  "Request a Demo". Product ids: `schools-erp`, `hospitals-erp`, `accounting`, `hrms`, `service-booking`, `other`.
 - **In the browser:** friendly inline validation, a character counter (2000 max), demo date/time
   fields only for demo requests, a spinner while sending, and a thank-you message on success. If
   sending fails, an "email us directly" link appears with the subject and body already filled in.

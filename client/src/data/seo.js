@@ -55,12 +55,12 @@ export const PAGES = {
   '/': {
     title: 'Intelyx | Business software for schools, hospitals and SMEs',
     description:
-      'Intelyx builds practical, reliable software for schools, hospitals, SMEs and service businesses: Schools ERP, Hospitals ERP, Accounting and Service Booking. Based in Bengaluru.',
+      'Intelyx builds reliable software for schools, hospitals, SMEs and service businesses: Schools ERP, Hospitals ERP, Accounting, HRMS and Service Booking. Based in Bengaluru.',
   },
   '/products': {
-    title: 'Schools ERP, Hospitals ERP, Accounting and Booking | Intelyx',
+    title: 'Schools ERP, Hospitals ERP, Accounting, HRMS, Booking | Intelyx',
     description:
-      'Explore Intelyx Schools ERP, Hospitals ERP, GST-ready Accounting Software and Service Booking Software. Features, who each is for, and a free demo.',
+      'Explore Intelyx Schools ERP, Hospitals ERP, GST-ready Accounting, HRMS for SMEs and Service Booking Software. Features, who each is for, and a free demo.',
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
@@ -84,7 +84,7 @@ export const PAGES = {
   '/about': {
     title: 'About Intelyx Tech Solutions LLP | Software company in Bengaluru',
     description:
-      'Intelyx Tech Solutions LLP is a Bengaluru software company building reliable ERP, accounting and booking software. Our mission, vision, values and approach.',
+      'Intelyx Tech Solutions LLP is a Bengaluru software company building reliable ERP, accounting, HR and booking software. Our mission, vision, values and approach.',
   },
   '/contact': {
     title: 'Contact Intelyx | Request a demo or send an enquiry',

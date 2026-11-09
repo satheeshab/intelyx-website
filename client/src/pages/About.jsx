@@ -29,7 +29,7 @@ const APART = [
 const MILESTONES = [
   { year: '2026', title: 'Intelyx Tech Solutions LLP is founded', text: 'A small team in Bengaluru sets out to build business software that is simpler, more reliable and fairly priced.' },
   { year: '2026', title: 'First product goes live', text: 'Our first customers start running daily operations on Intelyx, and their feedback shapes every release.' },
-  { year: '2026', title: 'Four products, one platform', text: 'Schools ERP, Hospitals ERP, Accounting and Service Booking now share a secure, modern cloud foundation.' },
+  { year: '2026', title: 'Five products, one platform', text: 'Schools ERP, Hospitals ERP, Accounting, HRMS and Service Booking now share a secure, modern cloud foundation.' },
   { year: '2026', title: "What's next", text: 'Expanding our support team and integrations to serve more institutions and businesses across India.' },
 ];
 

@@ -5,8 +5,19 @@ import { PRODUCT_DETAILS, PRODUCTS } from '../src/data/products.js';
 import { PRODUCT_PAGES } from '../src/data/productPages.js';
 import { NOT_FOUND, PAGES, productPath } from '../src/data/seo.js';
 import {
-  FIELD_ORDER, buildMailto, buildPayload, normalisePhone, validateAll, validateField,
+  FIELD_ORDER, PRODUCT_LABELS, buildMailto, buildPayload, normalisePhone, validateAll, validateField,
 } from '../src/lib/validation.js';
+import { PRODUCTS as SERVER_PRODUCTS } from '../../server/src/enquiry/validate.js';
+
+test('the enquiry form accepts every product, in the browser and on the server', () => {
+  const ids = [...PRODUCTS.map((p) => p.id), 'other'].sort();
+  assert.deepEqual(Object.keys(PRODUCT_LABELS).sort(), ids);
+  assert.deepEqual(Object.keys(SERVER_PRODUCTS).sort(), ids);
+  for (const p of PRODUCTS) {
+    assert.equal(PRODUCT_LABELS[p.id], p.name, p.id);
+    assert.equal(SERVER_PRODUCTS[p.id], p.name, p.id);
+  }
+});
 
 const today = new Date(2026, 9, 31); // 31 Oct 2026
 const good = {
@@ -75,10 +86,12 @@ test('every icon referenced by the product data exists', () => {
   }
 });
 
-test('every product has details, 8 features and a demo-ready id', () => {
-  assert.equal(PRODUCTS.length, 4);
+test('every product has details, a full feature grid and a demo-ready id', () => {
+  assert.equal(PRODUCTS.length, 5);
   for (const p of PRODUCTS) {
-    assert.equal(PRODUCT_DETAILS[p.id].features.length, 8, p.id);
+    // The feature grid shows 4 per row, so keep whole rows: 8, 12, ...
+    const n = PRODUCT_DETAILS[p.id].features.length;
+    assert.ok(n >= 8 && n % 4 === 0, `${p.id} has ${n} features`);
     assert.match(p.id, /^[a-z-]+$/);
   }
 });
